@@ -38,55 +38,6 @@ $(document).ready(function () {
         }
     }
 
-    /*
-        API OS Utils
-    */
-    let interval = 5
-    var refresh = function() {
-        $.ajax({
-            url: '/api/osutils',
-            dataType: 'json',
-            cache: false,
-            error: function (request, error) {
-                alert("Can't do because: " + error);
-            },
-            // beforeSend: function (){
-            //     $('#osutils').fadeOut(100);
-            // },
-            success: function (data) {
-                handleViewOs(data);
-            },
-            // complete: function(data) {
-            //     $('#osutils').fadeIn(100);
-            // }
-        })
-    }
-
-    function handleViewOs(data) {
-        $('#platform').html(data.osutils.platform)
-        $('#uptime').html(data.osutils.uptime + ' ms')
-        $('#cpus').html(data.osutils.cpus)
-        $('#cpu-usage').html(data.osutils.cpuUsage + ' %')
-        $('#cpu-free').html(data.osutils.cpuFree + ' %')
-        $('#total-memory').html(data.osutils.memory.totalMemMb + ' MB')
-        $('#used-memory').html(data.osutils.memory.usedMemMb + ' MB')
-        $('#free-memory').html(data.osutils.memory.freeMemMb + ' MB')
-    }
-
-    (function countdown(remaining) {
-        if(remaining === 1 ){
-            refresh()
-        }
-        if(remaining === -1) {
-            remaining = interval
-            $('#osutils').fadeOut(100);
-        }
-        $('#osutils').fadeIn(100);
-        document.getElementById('countdown').innerHTML = 'Refreshing in ' + remaining + ' seconds';
-        setTimeout(function(){ countdown(remaining - 1); }, 1000);
-    })(interval);
-
-
     $('#account-form').ajaxForm({
         beforeSubmit: function (formData, jqForm, options) {
             if (av.validateForm() == false) {

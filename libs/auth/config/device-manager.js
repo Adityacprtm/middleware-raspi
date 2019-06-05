@@ -125,17 +125,19 @@ exports.deleteDevice = function (id, user, callback) {
 }
 
 exports.saveTopic = function (device_id, topic) {
-    devices.findOneAndUpdate({ device_id: device_id }, { $set: { topic: topic } }, { returnOriginal: false })
+    db.run('UPDATE devices SET topic=? WHERE device_id=?', [topic, device_id])
+    // devices.findOneAndUpdate({ device_id: device_id }, { $set: { topic: topic } }, { returnOriginal: false })
 }
 
 exports.deleteTopic = function (device_id) {
-    devices.findOneAndUpdate({ device_id: device_id }, { $set: { topic: null } }, { returnOriginal: false })
+    db.run('UPDATE devices SET topic=null WHERE device_id=?', device_id)
+    // devices.findOneAndUpdate({ device_id: device_id }, { $set: { topic: null } }, { returnOriginal: false })
 }
 
 let encrypt = function (id, plain, callback) {
     let cipher, encrypted
-    devices.findOne({ device_id: id }, function (err, rep) {
-        if (err) console.log(err)
+    db.get('SELECT * FROM devices WHERE device_id=?', id, (err, rep) => {
+        if (err) { console.log(err) }
         if (rep) {
             cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(rep.key, ENCODE), Buffer.from(rep.iv, ENCODE));
             encrypted = cipher.update(plain);

@@ -247,7 +247,9 @@ module.exports = (app) => {
         if (req.session.user == null) {
             res.redirect('/');
         } else {
-            var osu = require('node-os-utils');
+            let osu = require('node-os-utils');
+            let os = require('os-utils');
+            let admin = req.session.user.admin;
             
             (async function run() {
                 data = {
@@ -256,11 +258,11 @@ module.exports = (app) => {
                     cpus: osu.cpu.count(),
                     cpuUsage: await osu.cpu.usage(),
                     cpuFree: await osu.cpu.free(),
-                    //drive: await osu.drive.info(),
-                    memory: await osu.mem.info()
+                    // memory: await osu.mem.info(),
+                    memTotal: os.totalmem(),
+                    memFree: os.freemem()
                 }
-
-                res.json({ osutils: data })
+                res.json({ user: admin, osutils: data })
             })()
         }
     })
@@ -335,6 +337,15 @@ module.exports = (app) => {
             res.render('error', { title: 'Forbidden', message: 'forbidden you don\'t have permission to access ' + req.path + ' on this server' })
         }
     });
+    
+    /* System Utils */
+    router.get('/status', function (req,res) {
+        if (req.session.user.admin == 1) {
+            res.render('sysutils')
+        } else {
+            res.render('error', { title: 'Forbidden', message: 'forbidden you don\'t have permission to access ' + req.path + ' on this server' })
+        }
+    })
 
     /* LogOut Path */
     router.post('/logout', (req, res) => {

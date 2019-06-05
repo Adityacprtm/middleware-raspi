@@ -18,6 +18,8 @@ function DashboardController() {
 
 	$('#btn-print').click(function () { window.location.href = '/print'; });
 
+	$('#btn-sysutils').click(function () { window.location.href = '/status'; });
+
 	this.deleteAccount = function () {
 		$('.modal-confirm').modal('hide');
 		let that = this;
