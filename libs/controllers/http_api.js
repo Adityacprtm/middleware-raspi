@@ -68,7 +68,7 @@ module.exports = (app) => {
                         } else {
                             res.format({
                                 'application/json': function () {
-                                    res.status(200).send({ status: 'Unvalid' })
+                                    res.status(200).send({ status: 'Invalid' })
                                 }
                             })
                         }
@@ -341,7 +341,7 @@ module.exports = (app) => {
     /* System Utils */
     router.get('/status', function (req,res) {
         if (req.session.user.admin == 1) {
-            res.render('sysutils')
+            res.render('sysutils', title: 'Information System')
         } else {
             res.render('error', { title: 'Forbidden', message: 'forbidden you don\'t have permission to access ' + req.path + ' on this server' })
         }
