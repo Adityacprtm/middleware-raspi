@@ -65,6 +65,6 @@ DashboardController.prototype.onUpdateSuccess = function () {
 	$('.modal-alert .modal-header h4').text('Success!');
 	$('.modal-alert .modal-body p').html('Your account has been updated.');
 	$('.modal-alert').modal('show');
-	$('.modal-alert button').click(function () { window.location.href = '/'; })
-	setTimeout(function () { window.location.href = '/'; }, 3000);
+	$('.modal-alert button').click(function () { window.location.href = '/dashboard'; })
+	setTimeout(function () { window.location.href = '/dashboard'; }, 3000);
 }

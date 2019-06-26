@@ -25,41 +25,50 @@ module.exports = (app) => {
             topic = /^\/r\/(.+)$/.exec(modUrl)[1]
             // token = url.parse(req.url, true).query.token
             token = JSON.parse(req.payload).token
-            DM.validity(token, (err, reply) => {
-                if (err != null) {
-                    logger.error('There\'s an error: %s', err)
-                    sendResponse('4.00', {
-                        message: 'Bad Request',
-                        additional: err.name
-                    })
-                } else {
-                    authorized = reply.status
-                    if (authorized) {
-                        if (reply.data.role == 'publisher') {
-                            data = JSON.parse(req.payload)
-                            delete data.token
-                            payload = Buffer.from(JSON.stringify(data))
-                            DM.saveTopic(reply.data.device_id, topic)
-                            Data.findOrCreate(topic, payload)
-                            logger.coap('Incoming %s request from %s for topic %s ', req.method, req.rsinfo.address, topic)
-                            sendResponse('2.01', {
-                                message: 'Created'
-                            })
+            if (!token) { 
+                logger.coap('Server has refused, client %s do not have tokens', req.rsinfo.address) 
+                logger.error('There\'s an error: jwt must be provided', )
+                sendResponse('4.01', {
+                    message: 'Unauthorized',
+                    additional: 'jwt must be provided'
+                })
+            } else {
+                DM.validity(token, (err, reply) => {
+                    if (err != null) {
+                        logger.error('There\'s an error: %s', err)
+                        sendResponse('4.00', {
+                            message: 'Bad Request',
+                            additional: err.name
+                        })
+                    } else {
+                        authorized = reply.status
+                        if (authorized) {
+                            if (reply.data.role == 'publisher') {
+                                data = JSON.parse(req.payload)
+                                delete data.token
+                                payload = Buffer.from(JSON.stringify(data))
+                                DM.saveTopic(reply.data.device_id, topic)
+                                Data.findOrCreate(topic, payload)
+                                logger.coap('Incoming %s request from %s for topic %s ', req.method, req.rsinfo.address, topic)
+                                sendResponse('2.01', {
+                                    message: 'Created'
+                                })
+                            } else {
+                                logger.coap('Refused %s request, from %s does not match the role', req.method, req.rsinfo.address)
+                                sendResponse('4.01', {
+                                    message: 'Unauthorized',
+                                    additional: 'Does not match the role'
+                                })
+                            }
                         } else {
-                            logger.coap('Refused %s request, from %s does not match the role', req.method, req.rsinfo.address)
+                            logger.coap('Server has refused, client %s identity rejected', req.rsinfo.address)
                             sendResponse('4.01', {
-                                message: 'Unauthorized',
-                                additional: 'Does not match the role'
+                                message: 'Unauthorized'
                             })
                         }
-                    } else {
-                        logger.coap('Server has refused, client %s identity rejected', req.rsinfo.address)
-                        sendResponse('4.01', {
-                            message: 'Unauthorized'
-                        })
                     }
-                }
-            })
+                })
+            }
         }
 
         const handlerGet = () => {

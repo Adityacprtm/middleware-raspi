@@ -79,7 +79,10 @@ exports.updateAccount = function (newData, callback) {
 			email: data.email,
 		}
 		if (data.pass) o.pass = data.pass;
-		db.run('UPDATE accounts SET name=?,email=?,password=? WHERE username=?', [o.name, o.email, o.pass, data.id], callback);
+		db.run('UPDATE accounts SET name=?,email=?,password=? WHERE id=?', [o.name, o.email, o.pass, data.id]);
+		db.get('SELECT * FROM accounts WHERE id=?', [data.id], (e, o) => {
+			callback(null, o)
+		})
 	}
 	if (newData.pass == '') {
 		findOneAndUpdate(newData);

@@ -28,7 +28,7 @@ module.exports = (app) => {
                     logger.http('Token generated for %s', req.ip)
                     res.format({
                         'application/json': function () {
-                            res.status(200).send(data);
+                            res.status(200).send({ token: data });
                         },
                     })
                 }
@@ -167,12 +167,12 @@ module.exports = (app) => {
                     id: req.session.user.id,
                     name: req.body['name'],
                     email: req.body['email'],
-                    pass: req.body['pass'],
+                    pass: req.body['pass']
                 }, function (e, o) {
                     if (e) {
                         res.status(400).send('error-updating-account');
                     } else {
-                        req.session.user = o.value;
+                        req.session.user = o;
                         logger.http('User %s has changed the account', req.session.user.username)
                         res.status(200).send('ok');
                     }
@@ -341,7 +341,7 @@ module.exports = (app) => {
     /* System Utils */
     router.get('/status', function (req,res) {
         if (req.session.user.admin == 1) {
-            res.render('sysutils', title: 'Information System')
+            res.render('sysutils', { title: 'Information System' })
         } else {
             res.render('error', { title: 'Forbidden', message: 'forbidden you don\'t have permission to access ' + req.path + ' on this server' })
         }

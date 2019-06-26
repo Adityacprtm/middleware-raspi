@@ -47,12 +47,17 @@ module.exports = (app) => {
                             socket.disconnect()
                         }
                     } else {
-                        logger.socket('Client %s has refused', socket.id)
+                        logger.socket('Client %s has rejected', socket.id)
                         socket.emit('error_msg', 'There\'s an Error')
                         socket.disconnect()
                     }
                 }
             })
+        } else {
+            logger.socket('Server has refused, client %s do not have token', socket.id)
+            logger.error('There\'s an error: jwt must be provide')
+            socket.emit('error_msg', 'jwt-must-be-provide')
+            socket.disconnect()
         }
 
         return socket.on('disconnect', () => {

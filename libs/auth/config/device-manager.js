@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
 const db = require('../db/db');
 const SECRET_KEY = 'supersecret',
-    EXP_TIME = '30s',
+    EXP_TIME = '60s',
     ISSUER = 'adityacprtm.com',
     ALGORITHM = 'aes-128-cbc',
     ENCODE = 'hex'
@@ -20,9 +20,10 @@ exports.request = function (payload, callback) {
                             generateToken(docs, (err, token) => {
                                 if (err != null) { callback(err, null) }
                                 else {
-                                    encrypt(docs.device_id, token, (encrypted) => {
-                                        callback(null, encrypted)
-                                    })
+                                    // encrypt(docs.device_id, token, (encrypted) => {
+                                    //     callback(null, encrypted)
+                                    // })
+                                    callback(null, token)
                                 }
                             })
                         }
@@ -37,9 +38,10 @@ exports.request = function (payload, callback) {
                 generateToken(docs, (err, token) => {
                     if (err != null) { callback(err, null) }
                     else {
-                        encrypt(docs.device_id, token, (encrypted) => {
-                            callback(null, encrypted)
-                        })
+                        // encrypt(docs.device_id, token, (encrypted) => {
+                        //     callback(null, encrypted)
+                        // })
+                        callback(null, token)
                     }
                 })
             }
