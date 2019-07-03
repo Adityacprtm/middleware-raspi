@@ -12,20 +12,24 @@ module.exports = (app) => {
     /* Device request token */
     router.route('/device/request')
         .post((req, res) => {
-            logger.http('Incoming Device for %s request token from %s ', req.method, req.ip)
+            let ip = req.ip
+            if (ip.substr(0, 7) == "::ffff:") {
+                ip = ip.substr(7)
+            }
+            logger.http('Incoming Device for %s request token from %s ', req.method, ip)
             let payload = req.body
-            payload.ip = req.ip
+            payload.ip = ip
             payload.timestamp = Date.now().toString()
             DM.request(payload, (err, data) => {
                 if (err != null) {
-                    logger.http('Not generate token for %s, %s', req.ip, err)
+                    logger.http('Not generate token for %s, %s', ip, err)
                     res.format({
                         'application/json': function () {
                             res.status(401).send(err);
                         }
                     })
                 } else {
-                    logger.http('Token generated for %s', req.ip)
+                    logger.http('Token generated for %s', ip)
                     res.format({
                         'application/json': function () {
                             res.status(200).send({ token: data });
@@ -35,7 +39,11 @@ module.exports = (app) => {
             })
         })
         .get((req, res) => {
-            logger.http('Incoming Device for %s request token from %s ', req.method, req.ip)
+            let ip = req.ip
+            if (ip.substr(0, 7) == "::ffff:") {
+                ip = ip.substr(7)
+            }
+            logger.http('Incoming Device for %s request token from %s ', req.method, ip)
             res.format({
                 'application/json': function () {
                     res.status(405).send({ message: 'Method Not Allowed' })
@@ -44,11 +52,12 @@ module.exports = (app) => {
         })
 
     router.route('/device/check')
-        .post((req, res) => {
-            logger.http('Incoming Device for %s check token from %s ', req.method, req.ip)
-        })
         .get((req, res) => {
-            logger.http('Incoming Device for %s check token from %s ', req.method, req.ip)
+            let ip = req.ip
+            if (ip.substr(0, 7) == "::ffff:") {
+                ip = ip.substr(7)
+            }
+            logger.http('Incoming Device for %s check token from %s ', req.method, ip)
             if (req.body.token) {
                 DM.validity(req.body.token, (err, reply) => {
                     if (err != null) {
@@ -89,12 +98,16 @@ module.exports = (app) => {
     /* Main Path */
     router.route('/')
         .get((req, res) => {
+            let ip = req.ip
+            if (ip.substr(0, 7) == "::ffff:") {
+                ip = ip.substr(7)
+            }
             // check if the user has an auto login key saved in a cookie //
             if (req.cookies.login == undefined) {
                 res.render('login', { title: 'Hello - Please Login To Your Account' });
             } else {
                 // attempt automatic login //
-                AM.validateLoginKey(req.cookies.login, req.ip, function (e, o) {
+                AM.validateLoginKey(req.cookies.login, ip, function (e, o) {
                     if (o) {
                         AM.autoLogin(o.user, o.pass, function (o) {
                             req.session.user = o;
@@ -107,12 +120,16 @@ module.exports = (app) => {
             }
         })
         .post((req, res) => {
+            let ip = req.ip
+            if (ip.substr(0, 7) == "::ffff:") {
+                ip = ip.substr(7)
+            }
             AM.manualLogin(req.body['user'], req.body['pass'], function (e, o) {
                 if (!o) {
                     res.status(400).send(e);
                 } else {
                     req.session.user = o;
-                    AM.generateLoginKey(o.username, req.ip, function (key) {
+                    AM.generateLoginKey(o.username, ip, function (key) {
                         logger.http('User %s has login', req.session.user.username)
                         res.cookie('login', key, { maxAge: 900000 });
                         res.status(200).send(o);

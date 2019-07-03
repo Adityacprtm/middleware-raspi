@@ -13,18 +13,26 @@ module.exports = (app) => {
         }
 
         const handlerPost = () => {
-            let modUrl, topic, token, authorized
+            let topic, payload, token, authorized, parseUrl, parsePayload
+            
+            parseUrl = url.parse(req.url, true)
+            parsePayload = JSON.parse(req.payload)
 
             if (/^\/r\/(.+)$/.exec(req.url) === null) {
                 return sendResponse('4.00', {
                     message: 'Bad Request'
                 })
             }
+            if (parseUrl.query.token) {
+                token = parseUrl.query.token
+            } else if (parsePayload.token) {
+                token = parsePayload.token
+                delete parsePayload.token
+                payload = Buffer.from(JSON.stringify(data))
+            }
 
-            modUrl = req.url.split('?')[0]
-            topic = /^\/r\/(.+)$/.exec(modUrl)[1]
-            // token = url.parse(req.url, true).query.token
-            token = JSON.parse(req.payload).token
+            topic = /^\/r\/(.+)$/.exec(req.url)[1]
+
             if (!token) { 
                 logger.coap('Server has refused, client %s do not have tokens', req.rsinfo.address) 
                 logger.error('There\'s an error: jwt must be provided', )
@@ -44,9 +52,6 @@ module.exports = (app) => {
                         authorized = reply.status
                         if (authorized) {
                             if (reply.data.role == 'publisher') {
-                                data = JSON.parse(req.payload)
-                                delete data.token
-                                payload = Buffer.from(JSON.stringify(data))
                                 DM.saveTopic(reply.data.device_id, topic)
                                 Data.findOrCreate(topic, payload)
                                 logger.coap('Incoming %s request from %s for topic %s ', req.method, req.rsinfo.address, topic)

@@ -9,6 +9,7 @@ module.exports = (app) => {
         if (!self.clients) self.clients = {}
 
         client.on('connect', (packet) => {
+            console.log(packet)
             let token, authorized
             token = packet.username
             client.user = packet.username
