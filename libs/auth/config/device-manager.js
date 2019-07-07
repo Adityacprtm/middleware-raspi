@@ -82,8 +82,8 @@ exports.addDevice = function (dataDevice, callback) {
                     dataDevice.device_id = tempId
                 }
                 dataDevice.device_password = hashing(dataDevice.user, Date.now())
-                dataDevice.iv = generateIv().toString(ENCODE)
-                dataDevice.key = generateKey(dataDevice.device_password).toString(ENCODE)
+                // dataDevice.iv = generateIv().toString(ENCODE)
+                // dataDevice.key = generateKey(dataDevice.device_password).toString(ENCODE)
                 db.run('INSERT INTO devices (device_name,role,description,user,device_id,device_password,key,iv,date) VALUES (?,?,?,?,?,?,?,?,datetime("now","localtime"))', [dataDevice.device_name, dataDevice.role, dataDevice.description, dataDevice.user, dataDevice.device_id, dataDevice.device_password, dataDevice.key, dataDevice.iv], (err, o) => {
                     if (err) { callback(err) }
                     else { callback(null) }
@@ -128,12 +128,10 @@ exports.deleteDevice = function (id, user, callback) {
 
 exports.saveTopic = function (device_id, topic) {
     db.run('UPDATE devices SET topic=? WHERE device_id=?', [topic, device_id])
-    // devices.findOneAndUpdate({ device_id: device_id }, { $set: { topic: topic } }, { returnOriginal: false })
 }
 
 exports.deleteTopic = function (device_id) {
     db.run('UPDATE devices SET topic=null WHERE device_id=?', device_id)
-    // devices.findOneAndUpdate({ device_id: device_id }, { $set: { topic: null } }, { returnOriginal: false })
 }
 
 let encrypt = function (id, plain, callback) {
@@ -163,13 +161,13 @@ let hashing = function (str, timestamp) {
     return crypto.createHash('sha256').update(str + '-' + timestamp).digest(ENCODE);
 }
 
-let generateKey = function (password) {
-    return crypto.scryptSync(password, generateSalt(), 16);
-}
+// let generateKey = function (password) {
+//     return crypto.scryptSync(password, generateSalt(), 16);
+// }
 
-let generateIv = function () {
-    return crypto.randomBytes(16);
-}
+// let generateIv = function () {
+//     return crypto.randomBytes(16);
+// }
 
 let checkToken = function (token, callback) {
     jwt.verify(token, SECRET_KEY, (err, decoded) => {
