@@ -5,7 +5,7 @@ module.exports = (app) => {
     const DM = require('../auth/config/device-manager')
 
     return io.on('connection', (socket) => {
-        let token, authorized, subscriptions, subscription
+        let token, subscriptions, subscription
 
         if (socket.handshake.query && socket.handshake.query.token) {
             token = socket.handshake.query.token
@@ -16,8 +16,7 @@ module.exports = (app) => {
                     socket.emit('error_msg', err.message)
                     socket.disconnect()
                 } else {
-                    authorized = reply.status
-                    if (authorized) {
+                    if (reply.status) {
                         logger.socket('Client %s has connected', socket.id)
                         if (reply.data.role == 'subscriber') {
                             subscriptions = {}

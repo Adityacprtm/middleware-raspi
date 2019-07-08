@@ -13,7 +13,7 @@ module.exports = (app) => {
         }
 
         const handlerPost = () => {
-            let topic, payload, token, authorized, parseUrl, parsePayload
+            let topic, payload, token, parseUrl, parsePayload
             
             parseUrl = url.parse(req.url, true)
             parsePayload = JSON.parse(req.payload)
@@ -49,8 +49,7 @@ module.exports = (app) => {
                             additional: err.name
                         })
                     } else {
-                        authorized = reply.status
-                        if (authorized) {
+                        if (reply.status) {
                             if (reply.data.role == 'publisher') {
                                 DM.saveTopic(reply.data.device_id, topic)
                                 Data.findOrCreate(topic, payload)
@@ -77,94 +76,108 @@ module.exports = (app) => {
         }
 
         const handlerGet = () => {
-            let modUrl, topic, token, authorized
+            let topic, payload, token, parseUrl, parsePayload
+            
+            parseUrl = url.parse(req.url, true)
+            parsePayload = JSON.parse(req.payload)
 
             if (/^\/r\/(.+)$/.exec(req.url) === null) {
-                sendResponse('4.04', {
-                    message: 'not found'
+                return sendResponse('4.00', {
+                    message: 'Bad Request'
                 })
-                return
+            }
+            if (parseUrl.query.token) {
+                token = parseUrl.query.token
+            } else if (parsePayload.token) {
+                token = parsePayload.token
+                delete parsePayload.token
+                payload = Buffer.from(JSON.stringify(data))
             }
 
-            modUrl = req.url.split('?')[0]
-            topic = /^\/r\/(.+)$/.exec(modUrl)[1]
-            token = url.parse(req.url, true).query.token;
-            // logger.coap('Client from %s Connecting . . .', req.rsinfo.address)
-            token = JSON.parse(req.payload).token
-            DM.validity(token, (err, reply) => {
-                if (err != null) {
-                    logger.error('There\'s an error: %s', err)
-                    sendResponse('5.00', {
-                        message: 'Internal Server Error',
-                        additional: err
-                    })
-                } else {
-                    authorized = reply
-                    if (authorized) {
-                        if (reply.role == 'subscriber') {
-                            logger.coap('Incoming %s request from %s for %s ', req.method, req.rsinfo.address, topic)
-                            let handlerObserver = function (payload) {
-                                let listener = function (data) {
-                                    try {
-                                        let stringValue = (data.value && data.value.type === 'Buffer') ?
-                                            new Buffer(data.value).toString() :
-                                            data.value.toString()
-                                        res.write(JSON.stringify({
-                                            topic: topic,
-                                            payload: stringValue
-                                        }))
-                                    } catch (err) {
-                                        logger.error('There\'s an error: %s', err.toLowerCase())
+            topic = /^\/r\/(.+)$/.exec(req.url)[1]
+
+            if (!token) { 
+                logger.coap('Server has refused, client %s do not have tokens', req.rsinfo.address) 
+                logger.error('There\'s an error: jwt must be provided', )
+                sendResponse('4.01', {
+                    message: 'Unauthorized',
+                    additional: 'jwt must be provided'
+                })
+            } else {
+                DM.validity(token, (err, reply) => {
+                    if (err != null) {
+                        logger.error('There\'s an error: %s', err)
+                        sendResponse('5.00', {
+                            message: 'Internal Server Error',
+                            additional: err
+                        })
+                    } else {
+                        if (reply.status) {
+                            if (reply.role == 'subscriber') {
+                                logger.coap('Incoming %s request from %s for %s ', req.method, req.rsinfo.address, topic)
+                                let handlerObserver = function (payload) {
+                                    let listener = function (data) {
+                                        try {
+                                            let stringValue = (data.value && data.value.type === 'Buffer') ?
+                                                new Buffer(data.value).toString() :
+                                                data.value.toString()
+                                            res.write(JSON.stringify({
+                                                topic: topic,
+                                                payload: stringValue
+                                            }))
+                                        } catch (err) {
+                                            logger.error('There\'s an error: %s', err.toLowerCase())
+                                        }
                                     }
+
+                                    res.write(JSON.stringify(payload))
+                                    Data.subscribe(topic, listener)
+
+                                    res.on('finish', function (err) {
+                                        if (err)
+                                            if (err) logger.error(err)
+                                        res.reset()
+                                    })
                                 }
 
-                                res.write(JSON.stringify(payload))
-                                Data.subscribe(topic, listener)
-
-                                res.on('finish', function (err) {
-                                    if (err)
-                                        if (err) logger.error(err)
-                                    res.reset()
-                                })
-                            }
-
-                            Data.find(topic, function (err, data) {
-                                if (err != null || data == null) {
-                                    sendResponse('4.04', {
-                                        message: 'not found'
-                                    })
-                                } else {
-                                    let stringValue = (data.value && data.value.type === 'Buffer') ?
-                                        new Buffer(data.value).toString() :
-                                        data.value
-                                    if (req.headers['Observe'] !== 0) {
-                                        sendResponse('2.05', {
-                                            topic: topic,
-                                            payload: stringValue
+                                Data.find(topic, function (err, data) {
+                                    if (err != null || data == null) {
+                                        sendResponse('4.04', {
+                                            message: 'not found'
                                         })
                                     } else {
-                                        handlerObserver({
-                                            topic: topic,
-                                            payload: stringValue
-                                        })
+                                        let stringValue = (data.value && data.value.type === 'Buffer') ?
+                                            new Buffer(data.value).toString() :
+                                            data.value
+                                        if (req.headers['Observe'] !== 0) {
+                                            sendResponse('2.05', {
+                                                topic: topic,
+                                                payload: stringValue
+                                            })
+                                        } else {
+                                            handlerObserver({
+                                                topic: topic,
+                                                payload: stringValue
+                                            })
+                                        }
                                     }
-                                }
-                            })
+                                })
+                            } else {
+                                logger.coap('Refused %s request, from %s does not match the role', req.method, req.rsinfo.address)
+                                sendResponse('4.01', {
+                                    message: 'Unauthorized',
+                                    additional: 'Does not match the role'
+                                })
+                            }
                         } else {
-                            logger.coap('Refused %s request, from %s does not match the role', req.method, req.rsinfo.address)
+                            logger.coap('Server has refused, client %s identity rejected', req.rsinfo.address)
                             sendResponse('4.01', {
-                                message: 'Unauthorized',
-                                additional: 'Does not match the role'
+                                message: 'Unauthorized'
                             })
                         }
-                    } else {
-                        logger.coap('Server has refused, client %s identity rejected', req.rsinfo.address)
-                        sendResponse('4.01', {
-                            message: 'Unauthorized'
-                        })
                     }
-                }
-            })
+                })
+            }
         }
 
         const handlerOther = () => {

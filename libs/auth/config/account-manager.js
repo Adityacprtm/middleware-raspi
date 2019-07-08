@@ -1,9 +1,9 @@
 const crypto = require('crypto');
 const db = require('../db/db');
 
-/*
-	login validation methods
-*/
+/* Public methods */
+
+/* Auto login validation methods */
 exports.autoLogin = function (user, pass, callback) {
 	db.get('SELECT password FROM accounts WHERE username=?', [user], (e, o) => {
 		if (o) {
@@ -14,6 +14,7 @@ exports.autoLogin = function (user, pass, callback) {
 	})
 }
 
+/* Manual login validation methods */
 exports.manualLogin = function (user, pass, callback) {
 	db.get('SELECT * FROM accounts WHERE username=?', [user], (e, o) => {
 		if (o == null) {
@@ -30,6 +31,7 @@ exports.manualLogin = function (user, pass, callback) {
 	})
 }
 
+/* Generator cookie (Login Key) methods */
 exports.generateLoginKey = function (user, ipAddress, callback) {
 	let cookie = guid();
 	db.run('UPDATE accounts SET ip=?,cookie=? WHERE username=?', [ipAddress, cookie, user], (e, o) => {
@@ -37,14 +39,12 @@ exports.generateLoginKey = function (user, ipAddress, callback) {
 	});
 }
 
+/* Validator cookie (Login Key) methods */
 exports.validateLoginKey = function (cookie, ipAddress, callback) {
-	// ensure the cookie maps to the user's last recorded ip address //
 	db.get('SELECT username,password FROM accounts WHERE cookie=? AND ip=?', [cookie, ipAddress], callback);
 }
 
-/*
-	record insertion, update & deletion methods
-*/
+/* insertion methods */
 exports.addNewAccount = function (newData, callback) {
 	db.serialize(function () {
 		const query1 = 'SELECT username FROM accounts WHERE username=?';
@@ -72,6 +72,7 @@ exports.addNewAccount = function (newData, callback) {
 	})
 }
 
+/* Update methods */
 exports.updateAccount = function (newData, callback) {
 	let findOneAndUpdate = function (data) {
 		let o = {
@@ -94,10 +95,15 @@ exports.updateAccount = function (newData, callback) {
 	}
 }
 
-/*
-	account lookup methods
-*/
+/* Delete methods */
+exports.deleteAccount = function (user, callback) {
+	db.run('DELETE FROM accounts WHERE username=?', user, (err, o) => {
+		if (err) { callback(err, null) }
+		else (callback(null, o))
+	})
+}
 
+/* account lookup methods */
 exports.getAllRecords = function (callback) {
 	db.all('SELECT * FROM accounts', (err, row) => {
 		if (err) {
@@ -108,17 +114,8 @@ exports.getAllRecords = function (callback) {
 	})
 }
 
-exports.deleteAccount = function (user, callback) {
-	db.run('DELETE FROM accounts WHERE username=?', user, (err, o) => {
-		if (err) { callback(err, null) }
-		else (callback(null, o))
-	})
-}
-
-/*
-	private encryption & validation methods
-*/
-
+/* Private methods */
+/* Salt generator */
 let generateSalt = function () {
 	let set = '0123456789abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ';
 	let salt = '';
@@ -129,6 +126,7 @@ let generateSalt = function () {
 	return salt;
 }
 
+/* Hashing md5 algorithm */
 let md5 = function (str) {
 	return crypto.createHash('md5').update(str).digest('hex');
 }

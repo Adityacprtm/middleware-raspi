@@ -10,7 +10,7 @@ module.exports = (app) => {
 
         client.on('connect', (packet) => {
             console.log(packet)
-            let token, authorized
+            let token
             token = packet.username
             client.user = packet.username
             self.clients[packet.clientId] = client
@@ -24,10 +24,9 @@ module.exports = (app) => {
                         returnCode: 5
                     })
                 } else {
-                    authorized = reply.status
                     client.role = reply.data.role
                     client.device_id = reply.data.device_id
-                    if (authorized) {
+                    if (reply.status) {
                         client.connack({
                             returnCode: 0
                         })

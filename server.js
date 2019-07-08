@@ -1,5 +1,4 @@
-let start, configure, app, logger, coap, consign, session, bodyParser, cookieParser,
-    argv, setup, setupAscoltatore, redis, coapServer, MongoStore, fs, https, SQLiteStore;
+let start, configure, app, logger, coap, consign, session, bodyParser, cookieParser, setup, setupAscoltatore, redis, coapServer, fs, https, SQLiteStore;
 
 require('dotenv').config();
 coap = require('coap')
@@ -20,7 +19,6 @@ https = require('https').createServer({
     key: fs.readFileSync('cert/server.key'),
     cert: fs.readFileSync('cert/server.cert')
 }, express)
-
 
 module.exports.setupAscoltatore = setupAscoltatore = (opts) => {
     if (opts == null) {
@@ -58,20 +56,6 @@ module.exports.start = start = () => {
     configure()
 
     logger = app.helpers.winston
-    // argv = app.helpers.yargs
-
-    // if (opts == null) { opts = {} }
-    // if (cb == null) { cb = () => { } }
-
-    // opts.port || (opts.port = argv['port'])
-    // opts.coap || (opts.coap = argv['coap'])
-    // opts.mqtt || (opts.mqtt = argv['mqtt'])
-    // opts.http || (opts.http = argv['http'])
-    // opts.https || (opts.https = argv['https'])
-    // opts.mqttHost || (opts.mqttHost = argv['mqtt-host'])
-    // opts.redisPort || (opts.redisPort = argv['redis-port'])
-    // opts.redisHost || (opts.redisHost = argv['redis-host'])
-    // opts.redisDB || (opts.redisDB = argv['redis-db'])
 
     setup({
         port: process.env.PORT_REDIS,
@@ -95,7 +79,7 @@ module.exports.start = start = () => {
         logger.socket('WebSocket listening on port %d in %s mode', process.env.PORT_SOCKET, process.env.NODE_ENV)
     });
 
-    // HTTP Gateway
+    // Express
     express.locals.pretty = true;
     express.set('port', process.env.PORT_HTTPS);
     express.set('views', __dirname + '/libs/auth/web/views');
@@ -113,9 +97,12 @@ module.exports.start = start = () => {
         store: new SQLiteStore({ db: 'database.db', table: 'sessions', dir: './libs/auth/db/' })
     }))
     express.use('/', app.controllers.http_api)
+
+    // HTTP Gateway
     express.listen(process.env.PORT_HTTP, () => {
         logger.http('HTTP server listening on port %d in %s mode', process.env.PORT_HTTP, process.env.NODE_ENV)
     })
+
     // HTTPS
     https.listen(process.env.PORT_HTTPS, function () {
         logger.https('HTTPS server listening on port %d in %s mode', process.env.PORT_HTTPS, process.env.NODE_ENV)

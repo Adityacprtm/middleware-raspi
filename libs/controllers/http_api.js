@@ -1,7 +1,6 @@
 module.exports = (app) => {
 
     const logger = app.helpers.winston
-    const osutils = app.helpers.osutils
     const router = require('express').Router()
     const AM = require('../auth/config/account-manager')
     const DM = require('../auth/config/device-manager')
@@ -12,12 +11,13 @@ module.exports = (app) => {
     /* Device request token */
     router.route('/device/request')
         .post((req, res) => {
-            let ip = req.ip
+            let ip, payload
+            ip = req.ip
             if (ip.substr(0, 7) == "::ffff:") {
                 ip = ip.substr(7)
             }
             logger.http('Incoming Device for %s request token from %s ', req.method, ip)
-            let payload = req.body
+            payload = req.body
             payload.ip = ip
             payload.timestamp = Date.now().toString()
             DM.request(payload, (err, data) => {
@@ -275,7 +275,6 @@ module.exports = (app) => {
                     cpus: osu.cpu.count(),
                     cpuUsage: await osu.cpu.usage(),
                     cpuFree: await osu.cpu.free(),
-                    // memory: await osu.mem.info(),
                     memTotal: os.totalmem(),
                     memFree: os.freemem()
                 }
