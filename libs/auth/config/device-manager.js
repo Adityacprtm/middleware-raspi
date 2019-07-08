@@ -1,11 +1,6 @@
 const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
 const db = require('../db/db');
-const SECRET_KEY = 'supersecret',
-    EXP_TIME = '60s',
-    ISSUER = 'adityacprtm.com',
-    ALGORITHM = 'aes-128-cbc',
-    ENCODE = 'hex'
 
 exports.request = function (payload, callback) {
     db.get('SELECT * FROM devices WHERE device_id=? AND device_password=?', [payload.device_id, payload.device_password], (err, docs) => {
@@ -84,7 +79,8 @@ exports.addDevice = function (dataDevice, callback) {
                 dataDevice.device_password = hashing(dataDevice.user, Date.now())
                 // dataDevice.iv = generateIv().toString(ENCODE)
                 // dataDevice.key = generateKey(dataDevice.device_password).toString(ENCODE)
-                db.run('INSERT INTO devices (device_name,role,description,user,device_id,device_password,key,iv,date) VALUES (?,?,?,?,?,?,?,?,datetime("now","localtime"))', [dataDevice.device_name, dataDevice.role, dataDevice.description, dataDevice.user, dataDevice.device_id, dataDevice.device_password, dataDevice.key, dataDevice.iv], (err, o) => {
+                // db.run('INSERT INTO devices (device_name,role,description,user,device_id,device_password,key,iv,date) VALUES (?,?,?,?,?,?,?,?,datetime("now","localtime"))', [dataDevice.device_name, dataDevice.role, dataDevice.description, dataDevice.user, dataDevice.device_id, dataDevice.device_password, dataDevice.key, dataDevice.iv], (err, o) => {
+                db.run('INSERT INTO devices (device_name,role,description,user,device_id,device_password,date) VALUES (?,?,?,?,?,?,datetime("now","localtime"))', [dataDevice.device_name, dataDevice.role, dataDevice.description, dataDevice.user, dataDevice.device_id, dataDevice.device_password], (err, o) => {
                     if (err) { callback(err) }
                     else { callback(null) }
                 })
@@ -134,18 +130,18 @@ exports.deleteTopic = function (device_id) {
     db.run('UPDATE devices SET topic=null WHERE device_id=?', device_id)
 }
 
-let encrypt = function (id, plain, callback) {
-    let cipher, encrypted
-    db.get('SELECT * FROM devices WHERE device_id=?', id, (err, rep) => {
-        if (err) { console.log(err) }
-        if (rep) {
-            cipher = crypto.createCipheriv(ALGORITHM, Buffer.from(rep.key, ENCODE), Buffer.from(rep.iv, ENCODE));
-            encrypted = cipher.update(plain);
-            encrypted = Buffer.concat([encrypted, cipher.final()]);
-            callback(encrypted.toString(ENCODE))
-        }
-    })
-}
+// let encrypt = function (id, plain, callback) {
+//     let cipher, encrypted
+//     db.get('SELECT * FROM devices WHERE device_id=?', id, (err, rep) => {
+//         if (err) { console.log(err) }
+//         if (rep) {
+//             cipher = crypto.createCipheriv(process.env.ALGORITHM, Buffer.from(rep.key, ENCODE), Buffer.from(rep.iv, ENCODE));
+//             encrypted = cipher.update(plain);
+//             encrypted = Buffer.concat([encrypted, cipher.final()]);
+//             callback(encrypted.toString(ENCODE))
+//         }
+//     })
+// }
 
 let generateSalt = function () {
     let set = '0123456789abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ';
@@ -158,7 +154,7 @@ let generateSalt = function () {
 }
 
 let hashing = function (str, timestamp) {
-    return crypto.createHash('sha256').update(str + '-' + timestamp).digest(ENCODE);
+    return crypto.createHash('sha256').update(str + '-' + timestamp).digest(process.env.ENCODE);
 }
 
 // let generateKey = function (password) {
@@ -170,7 +166,7 @@ let hashing = function (str, timestamp) {
 // }
 
 let checkToken = function (token, callback) {
-    jwt.verify(token, SECRET_KEY, (err, decoded) => {
+    jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
         if (err) {
             callback(err, null)
         } else {
@@ -186,7 +182,7 @@ let generateToken = function (docs, callback) {
         timestamp: docs.timestamp,
         role: docs.role
     }
-    jwt.sign(payload, SECRET_KEY, { expiresIn: EXP_TIME, issuer: ISSUER }, (err, token) => {
+    jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: process.env.EXP_TIME, issuer: process.env.ISSUER }, (err, token) => {
         if (err) {
             callback(err.name, null)
         } else {

@@ -54,24 +54,6 @@ module.exports = (app) => {
                 demand: false,
                 default: 0,
                 describe: 'The redis database to connect.'
-            },
-            'mp': {
-                alias: 'mongo-port',
-                demand: false,
-                default: 27017,
-                describe: 'The port of the mongo server.'
-            },
-            'mh': {
-                alias: 'mongo-host',
-                demand: false,
-                default: '127.0.0.1',
-                describe: 'The host of the mongo server.'
-            },
-            'md': {
-                alias: 'mongo-db',
-                demand: false,
-                default: 'auth-middleware',
-                describe: 'The name of the mongo database.'
             }
         })
         .help('h').alias('h', 'help')

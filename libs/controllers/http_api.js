@@ -366,6 +366,7 @@ module.exports = (app) => {
 
     /* LogOut Path */
     router.post('/logout', (req, res) => {
+        logger.http('User %s has logout', req.session.user.username)
         res.clearCookie('login');
         req.session.destroy(function (e) { res.status(200).send('ok'); });
     })
