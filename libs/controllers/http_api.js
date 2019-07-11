@@ -260,14 +260,14 @@ module.exports = (app) => {
         }
     })
 
-    router.get('/api/osutils', (req,res) => {
+    router.get('/api/osutils', (req, res) => {
         if (req.session.user == null) {
             res.redirect('/');
         } else {
             let osu = require('node-os-utils');
             let os = require('os-utils');
             let admin = req.session.user.admin;
-            
+
             (async function run() {
                 data = {
                     platform: await osu.os.platform(),
@@ -353,9 +353,9 @@ module.exports = (app) => {
             res.render('error', { title: 'Forbidden', message: 'forbidden you don\'t have permission to access ' + req.path + ' on this server' })
         }
     });
-    
+
     /* System Utils */
-    router.get('/status', function (req,res) {
+    router.get('/status', function (req, res) {
         if (req.session.user.admin == 1) {
             res.render('sysutils', { title: 'Information System' })
         } else {

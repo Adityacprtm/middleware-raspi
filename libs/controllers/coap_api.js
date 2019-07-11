@@ -14,7 +14,7 @@ module.exports = (app) => {
 
         const handlerPost = () => {
             let topic, payload, token, parseUrl, parsePayload
-            
+
             parseUrl = url.parse(req.url, true)
             parsePayload = JSON.parse(req.payload)
 
@@ -33,9 +33,9 @@ module.exports = (app) => {
 
             topic = DM.buildTopic(/^\/r\/(.+)$/.exec(req.url)[1])
 
-            if (!token) { 
-                logger.coap('Server has refused, client %s do not have tokens', req.rsinfo.address) 
-                logger.error('There\'s an error: jwt must be provided', )
+            if (!token) {
+                logger.coap('Server has refused, client %s do not have tokens', req.rsinfo.address)
+                logger.error('There\'s an error: jwt must be provided')
                 sendResponse('4.01', {
                     message: 'Unauthorized',
                     additional: 'jwt must be provided'
@@ -77,7 +77,7 @@ module.exports = (app) => {
 
         const handlerGet = () => {
             let topic, payload, token, parseUrl, parsePayload
-            
+
             parseUrl = url.parse(req.url, true)
             parsePayload = JSON.parse(req.payload)
 
@@ -96,9 +96,9 @@ module.exports = (app) => {
 
             topic = /^\/r\/(.+)$/.exec(req.url)[1]
 
-            if (!token) { 
-                logger.coap('Server has refused, client %s do not have tokens', req.rsinfo.address) 
-                logger.error('There\'s an error: jwt must be provided', )
+            if (!token) {
+                logger.coap('Server has refused, client %s do not have tokens', req.rsinfo.address)
+                logger.error('There\'s an error: jwt must be provided')
                 sendResponse('4.01', {
                     message: 'Unauthorized',
                     additional: 'jwt must be provided'

@@ -1,6 +1,6 @@
 $(document).ready(function () {
     let interval = 5;
-    let refresh = function(){
+    let refresh = function () {
         $.ajax({
             url: '/api/osutils',
             dataType: 'json',
@@ -27,16 +27,16 @@ $(document).ready(function () {
     }
 
     (function countdown(remaining) {
-        if(remaining === 1){
+        if (remaining === 1) {
             refresh()
         }
-        if(remaining === -1) {
+        if (remaining === -1) {
             //location.reload(true)
             remaining = interval
             $('#osutils').fadeOut(100);
         }
         $('#osutils').fadeIn(100);
         document.getElementById('countdown').innerHTML = 'Refreshing in ' + remaining + ' seconds';
-        setTimeout(function(){ countdown(remaining - 1); }, 1000);
+        setTimeout(function () { countdown(remaining - 1); }, 1000);
     })(interval);
 })
