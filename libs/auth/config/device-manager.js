@@ -115,6 +115,10 @@ exports.deleteTopic = function (device_id) {
     db.run('UPDATE devices SET topic=null WHERE device_id=?', device_id)
 }
 
+exports.buildTopic = function (topic) {
+    return topic + '-' + crypto.randomBytes(3).toString(process.env.ENCODE);
+}
+
 let generateSalt = function () {
     let set = '0123456789abcdefghijklmnopqurstuvwxyzABCDEFGHIJKLMNOPQURSTUVWXYZ';
     let salt = '';

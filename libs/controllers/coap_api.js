@@ -31,7 +31,7 @@ module.exports = (app) => {
                 payload = Buffer.from(JSON.stringify(data))
             }
 
-            topic = /^\/r\/(.+)$/.exec(req.url)[1]
+            topic = DM.buildTopic(/^\/r\/(.+)$/.exec(req.url)[1])
 
             if (!token) { 
                 logger.coap('Server has refused, client %s do not have tokens', req.rsinfo.address) 
