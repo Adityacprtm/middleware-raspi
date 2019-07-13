@@ -14,7 +14,7 @@ exports.request = function (payload, callback) {
                             docs.ip = payload.ip
                             docs.timestamp = payload.timestamp
                             generateToken(docs, (err, token) => {
-                                if (err != null) { callback(err, null) } 
+                                if (err != null) { callback(err, null) }
                                 else { callback(null, token) }
                             })
                         }
@@ -27,7 +27,7 @@ exports.request = function (payload, callback) {
                 docs.ip = payload.ip
                 docs.timestamp = payload.timestamp
                 generateToken(docs, (err, token) => {
-                    if (err != null) { callback(err, null) } 
+                    if (err != null) { callback(err, null) }
                     else { callback(null, token) }
                 })
             }
@@ -43,7 +43,7 @@ exports.validity = function (token, callback) {
             callback(err, { 'status': false })
         } else {
             db.get('SELECT * FROM devices WHERE device_id=?', reply.device_id, (e, o) => {
-                if (o) { callback(null, { 'status': true, 'data': reply }) } 
+                if (o) { callback(null, { 'status': true, 'data': reply }) }
                 else { callback(err, { 'status': false }) }
             })
         }

@@ -22,7 +22,7 @@ $(document).ready(function () {
             handleView()
         }
     })
-    
+
     function handleView() {
         $('#welcome-user').text('Welcome, ' + user);
         if (a.length == 0) {
