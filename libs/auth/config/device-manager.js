@@ -42,7 +42,7 @@ exports.validity = function (token, callback) {
         if (err != null) {
             callback(err, { 'status': false })
         } else {
-            db.get('SELECT * FROM devices WHERE device_id=?', reply.device_id, (e, o) => {
+            db.get('SELECT device_id FROM devices WHERE device_id=?', reply.device_id, (e, o) => {
                 if (o) { callback(null, { 'status': true, 'data': reply }) }
                 else { callback(err, { 'status': false }) }
             })
@@ -52,12 +52,12 @@ exports.validity = function (token, callback) {
 
 exports.addDevice = function (dataDevice, callback) {
     let tempId
-    db.get('SELECT * FROM devices WHERE device_name=? AND user=?', [dataDevice.device_name, dataDevice.user], (err, rep) => {
-        if (rep) {
+    db.get('SELECT * FROM devices WHERE device_name=? AND user=?', [dataDevice.device_name, dataDevice.user], (err, dvc) => {
+        if (dvc) {
             callback('device-name-taken')
         } else {
             tempId = hashing(dataDevice.device_name, Date.now())
-            db.get('SELECT * FROM devices WHERE device_id=?', tempId, (err, rep) => {
+            db.get('SELECT device_id FROM devices WHERE device_id=?', tempId, (err, rep) => {
                 if (err) { callback(err) }
                 if (rep) { dataDevice.device_id = hashing(dataDevice.device_name, Date.now()) } 
                 else { dataDevice.device_id = tempId }
@@ -77,21 +77,21 @@ exports.updateDevice = function (newData, callback) {
 }
 
 exports.checkId = function (id, callback) {
-    db.get('SELECT * FROM devices WHERE device_id=?', id, (err, rep) => {
+    db.get('SELECT device_name,device_id,role,description,user,date,topic FROM devices WHERE device_id=?', id, (err, rep) => {
         if (rep) { callback(null, rep) }
         else { callback(err, null) }
     })
 }
 
 exports.getDevice = function (user, callback) {
-    db.all('SELECT * FROM devices WHERE user=?', user, (e, res) => {
+    db.all('SELECT evice_name,device_id,role,description,user,date,topic FROM devices WHERE user=?', user, (e, res) => {
         if (e) callback(e)
         else callback(null, res)
     })
 }
 
 exports.getAllDevice = function (callback) {
-    db.all('SELECT * FROM devices', (e, res) => {
+    db.all('SELECT evice_name,device_id,role,description,user,date,topic FROM devices', (e, res) => {
         if (e) callback(e)
         else callback(null, res)
     })

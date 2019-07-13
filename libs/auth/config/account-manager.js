@@ -16,7 +16,7 @@ exports.autoLogin = function (user, pass, callback) {
 
 /* Manual login validation methods */
 exports.manualLogin = function (user, pass, callback) {
-	db.get('SELECT * FROM accounts WHERE username=?', [user], (e, o) => {
+	db.get('SELECT name,email,username,date FROM accounts WHERE username=?', [user], (e, o) => {
 		if (o == null) {
 			callback('user-not-found');
 		} else {
@@ -81,7 +81,7 @@ exports.updateAccount = function (newData, callback) {
 		}
 		if (data.pass) o.pass = data.pass;
 		db.run('UPDATE accounts SET name=?,email=?,password=? WHERE id=?', [o.name, o.email, o.pass, data.id]);
-		db.get('SELECT * FROM accounts WHERE id=?', [data.id], (e, o) => {
+		db.get('SELECT name,email,username,date FROM accounts WHERE id=?', [data.id], (e, o) => {
 			callback(null, o)
 		})
 	}
@@ -105,7 +105,7 @@ exports.deleteAccount = function (user, callback) {
 
 /* account lookup methods */
 exports.getAllRecords = function (callback) {
-	db.all('SELECT * FROM accounts', (err, row) => {
+	db.all('SELECT name,email,username,date,admin,date FROM accounts', (err, row) => {
 		if (err) {
 			callback(err)
 		} else {

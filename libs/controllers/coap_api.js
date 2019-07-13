@@ -23,6 +23,7 @@ module.exports = (app) => {
                     message: 'Bad Request'
                 })
             }
+
             if (parseUrl.query.token) {
                 token = parseUrl.query.token
             } else if (parsePayload.token) {

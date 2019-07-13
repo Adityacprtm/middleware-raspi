@@ -102,11 +102,9 @@ module.exports = (app) => {
             if (ip.substr(0, 7) == "::ffff:") {
                 ip = ip.substr(7)
             }
-            // check if the user has an auto login key saved in a cookie //
             if (req.cookies.login == undefined) {
                 res.render('login', { title: 'Hello - Please Login To Your Account' });
             } else {
-                // attempt automatic login //
                 AM.validateLoginKey(req.cookies.login, ip, function (e, o) {
                     if (o) {
                         AM.autoLogin(o.user, o.pass, function (o) {
