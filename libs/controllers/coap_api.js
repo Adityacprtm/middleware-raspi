@@ -51,11 +51,13 @@ module.exports = (app) => {
                     } else {
                         if (reply.status) {
                             if (reply.data.role == 'publisher') {
-                                DM.saveTopic(reply.data.device_id, topic)
-                                Data.findOrCreate(topic, payload)
-                                logger.coap('Incoming %s request from %s for topic %s ', req.method, req.rsinfo.address, topic)
-                                sendResponse('2.01', {
-                                    message: 'Created'
+                                DM.buildTopic(reply.data.device_id, topic, (e,o) => {
+                                    DM.saveTopic(reply.data.device_id, o)
+                                    Data.findOrCreate(o, payload)
+                                    logger.coap('Incoming %s request from %s for topic %s ', req.method, req.rsinfo.address, topic)
+                                    sendResponse('2.01', {
+                                        message: 'Created'
+                                    })
                                 })
                             } else {
                                 logger.coap('Refused %s request, from %s does not match the role', req.method, req.rsinfo.address)

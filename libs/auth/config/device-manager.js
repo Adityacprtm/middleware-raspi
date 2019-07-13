@@ -59,13 +59,11 @@ exports.addDevice = function (dataDevice, callback) {
             tempId = hashing(dataDevice.device_name, Date.now())
             db.get('SELECT * FROM devices WHERE device_id=?', tempId, (err, rep) => {
                 if (err) { callback(err) }
-                if (rep) {
-                    dataDevice.device_id = hashing(dataDevice.device_name, Date.now())
-                } else {
-                    dataDevice.device_id = tempId
-                }
+                if (rep) { dataDevice.device_id = hashing(dataDevice.device_name, Date.now()) } 
+                else { dataDevice.device_id = tempId }
+                dataDevice.topic_id = generateTopicId()
                 dataDevice.device_password = hashing(dataDevice.user, Date.now())
-                db.run('INSERT INTO devices (device_name,role,description,user,device_id,device_password,date) VALUES (?,?,?,?,?,?,datetime("now","localtime"))', [dataDevice.device_name, dataDevice.role, dataDevice.description, dataDevice.user, dataDevice.device_id, dataDevice.device_password], (err, o) => {
+                db.run('INSERT INTO devices (device_name,role,description,user,device_id,device_password,topic_id,date) VALUES (?,?,?,?,?,?,?,datetime("now","localtime"))', [dataDevice.device_name, dataDevice.role, dataDevice.description, dataDevice.user, dataDevice.device_id, dataDevice.device_password, dataDevice.topic_id], (err, o) => {
                     if (err) { callback(err) }
                     else { callback(null) }
                 })
@@ -115,8 +113,18 @@ exports.deleteTopic = function (device_id) {
     db.run('UPDATE devices SET topic=null WHERE device_id=?', device_id)
 }
 
-exports.buildTopic = function (topic) {
-    return topic + '-' + crypto.randomBytes(3).toString(process.env.ENCODE);
+exports.buildTopic = function (device_id, topic, callback) {
+    db.get('SELECT topic_id FROM devices WHERE device_id=?', device_id, (e,o) => {
+        if (o) {
+            callback(null, o.topic_id + '/' + topic)
+        } else {
+            callback(e)
+        }
+    })
+}
+
+let generateTopicId = function () {
+    return crypto.randomBytes(4).toString(process.env.ENCODE);
 }
 
 let generateSalt = function () {

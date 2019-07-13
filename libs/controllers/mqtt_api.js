@@ -46,9 +46,10 @@ module.exports = (app) => {
                 if (packet.qos == 1) {
                     client.puback({ messageId: packet.messageId })
                 }
-                let topic = DM.buildTopic(packet.topic)
-                DM.saveTopic(client.device_id, topic)
-                return Data.findOrCreate(topic, packet.payload)
+                return DM.buildTopic(client.device_id, packet.topic , (e,o) => {
+                    DM.saveTopic(client.device_id, o)
+                    Data.findOrCreate(o, packet.payload)
+                })
             } else {
                 logger.mqtt('Client %s does not match the role', client.id)
                 client.connack({
