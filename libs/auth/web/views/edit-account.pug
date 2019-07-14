@@ -1,0 +1,54 @@
+extends layout
+
+block content
+    - user = typeof(usr) != 'undefined' ? usr : { }
+
+    nav.navbar.sticky-top.navbar-expand-lg.navbar-light.bg-light.shadow-sm
+        .container
+            a.navbar-brand(href='/dashboard') Dashboard
+            button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarNavAltMarkup')
+                span.navbar-toggler-icon
+            .collapse.navbar-collapse.justify-content-end#navbarNavAltMarkup
+                .navbar-nav
+                    button.btn.navbar-btn.btn-outline-primary#btn-dashboard Dashboard
+                    button.btn.navbar-btn.btn-outline-danger#btn-logout Sign Out
+
+    #box-form-container.center-vertical
+        br
+        form.card.card-body.bg-light.shadow(method='post')#account-form
+            h3 Your Information Account
+            h6 Here are the current settings for your account.
+            hr
+            .collapse.show#collapseAccount
+                .form-group.row
+                    label.col-sm-3.col-form-label.col-form-label-sm Username
+                    .col-sm-9
+                        input.form-control(disabled='', type='text', name='user', value= user.username)
+
+                .form-group.row
+                    label.col-sm-3.col-form-label.col-form-label-sm Name
+                    .col-sm-9
+                        input.form-control#name-tf(type='text', name='name', value= user.name)
+
+                .form-group.row
+                    label.col-sm-3.col-form-label.col-form-label-sm Email
+                    .col-sm-9
+                        input.form-control#email-tf(type='email', name='email', value= user.email)
+
+                .form-group.row
+                    label.col-sm-3.col-form-label.col-form-label-sm Password
+                    .col-sm-9
+                        input.form-control#pass-tf(type='password', name='pass', value='')
+
+                .form-buttons
+                    button(type='button')#account-form-btn1.btn.btn-outline-dark
+                    button(type='submit')#account-form-btn2.btn.btn-primary
+    
+    include modals/alert
+    include modals/confirm
+    include modals/form-errors
+
+block scripts
+    script(src='/js/views/edit-account.js')
+    script(src='/js/controllers/accountController.js')
+    script(src='/js/form-validators/accountValidator.js')

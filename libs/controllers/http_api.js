@@ -98,6 +98,9 @@ module.exports = (app) => {
     /* Main Path */
     router.route('/')
         .get((req, res) => {
+            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+                return res.redirect('https://' + req.get('host') + req.url);
+            }
             let ip = req.ip
             if (ip.substr(0, 7) == "::ffff:") {
                 ip = ip.substr(7)
@@ -107,7 +110,7 @@ module.exports = (app) => {
             } else {
                 AM.validateLoginKey(req.cookies.login, ip, function (e, o) {
                     if (o) {
-                        AM.autoLogin(o.user, o.pass, function (o) {
+                        AM.autoLogin(o.username, o.pass, function (o) {
                             req.session.user = o;
                             res.redirect('/dashboard');
                         });
@@ -118,6 +121,9 @@ module.exports = (app) => {
             }
         })
         .post((req, res) => {
+            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+                return res.redirect('https://' + req.get('host') + req.url);
+            }
             let ip = req.ip
             if (ip.substr(0, 7) == "::ffff:") {
                 ip = ip.substr(7)
@@ -139,9 +145,15 @@ module.exports = (app) => {
     /* SignUp path */
     router.route('/signup')
         .get((req, res) => {
+            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+                return res.redirect('https://' + req.get('host') + req.url);
+            }
             res.render('signup', { title: 'Signup' });
         })
         .post((req, res) => {
+            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+                return res.redirect('https://' + req.get('host') + req.url);
+            }
             AM.addNewAccount({
                 name: req.body['name'],
                 email: req.body['email'],
@@ -161,6 +173,9 @@ module.exports = (app) => {
     /* Dashboard path */
     router.route('/dashboard')
         .get((req, res) => {
+            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+                return res.redirect('https://' + req.get('host') + req.url);
+            }
             if (req.session.user == null) {
                 res.redirect('/');
             } else {
@@ -174,30 +189,13 @@ module.exports = (app) => {
                 })
             }
         })
-        .post((req, res) => {
-            if (req.session.user == null) {
-                res.redirect('/');
-            } else {
-                AM.updateAccount({
-                    id: req.session.user.id,
-                    name: req.body['name'],
-                    email: req.body['email'],
-                    pass: req.body['pass']
-                }, function (e, o) {
-                    if (e) {
-                        res.status(400).send('error-updating-account');
-                    } else {
-                        req.session.user = o;
-                        logger.http('User %s has changed the account', req.session.user.username)
-                        res.status(200).send('ok');
-                    }
-                });
-            }
-        })
 
     /* Device Path */
     router.route('/device')
         .get((req, res) => {
+            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+                return res.redirect('https://' + req.get('host') + req.url);
+            }
             if (req.session.user == null) {
                 res.redirect('/');
             } else {
@@ -208,7 +206,7 @@ module.exports = (app) => {
                             res.status(400);
                             res.render('error', { title: 'Page Not Found', message: 'I\'m sorry, the page or resource you are searching for is currently unavailable.' });
                         } else {
-                            res.render('editDevice', {
+                            res.render('edit-device', {
                                 title: 'Device Update',
                                 dvc: data
                             })
@@ -220,6 +218,9 @@ module.exports = (app) => {
             }
         })
         .post((req, res) => {
+            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+                return res.redirect('https://' + req.get('host') + req.url);
+            }
             if (req.session.user == null) {
                 res.redirect('/');
             } else {
@@ -246,8 +247,46 @@ module.exports = (app) => {
             }
         })
 
+    router.route('/account')
+        .get((req,res) => {
+            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+                return res.redirect('https://' + req.get('host') + req.url);
+            }
+            res.status(200)
+            res.render('edit-account', {
+                title: 'Account Update',
+                usr: req.session.user
+            })
+        })
+        .post((req, res) => {
+            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+                return res.redirect('https://' + req.get('host') + req.url);
+            }
+            if (req.session.user == null) {
+                res.redirect('/');
+            } else {
+                AM.updateAccount({
+                    id: req.session.user.id,
+                    name: req.body['name'],
+                    email: req.body['email'],
+                    pass: req.body['pass']
+                }, function (e, o) {
+                    if (e) {
+                        res.status(400).send('error-updating-account');
+                    } else {
+                        req.session.user = o;
+                        logger.http('User %s has changed the account', req.session.user.username)
+                        res.status(200).send('ok');
+                    }
+                });
+            }
+        })
+
     /* Get Device API */
     router.get('/api/device', (req, res) => {
+        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            return res.redirect('https://' + req.get('host') + req.url);
+        }
         if (req.session.user == null) {
             res.redirect('/');
         } else {
@@ -259,6 +298,9 @@ module.exports = (app) => {
     })
 
     router.get('/api/osutils', (req, res) => {
+        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            return res.redirect('https://' + req.get('host') + req.url);
+        }
         if (req.session.user == null) {
             res.redirect('/');
         } else {
@@ -284,6 +326,9 @@ module.exports = (app) => {
     /* Register device path */
     router.route('/register')
         .get((req, res) => {
+            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+                return res.redirect('https://' + req.get('host') + req.url);
+            }
             if (req.session.user == null) {
                 res.redirect('/');
             } else {
@@ -294,6 +339,9 @@ module.exports = (app) => {
             }
         })
         .post((req, res) => {
+            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+                return res.redirect('https://' + req.get('host') + req.url);
+            }
             DM.addDevice({
                 device_name: req.body['device_name'],
                 role: req.body['role'],
@@ -311,6 +359,9 @@ module.exports = (app) => {
 
     /* Delete Path */
     router.post('/delete', function (req, res) {
+        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            return res.redirect('https://' + req.get('host') + req.url);
+        }
         if (req.query.id) {
             DM.deleteDevice(req.query.id, null, (err, obj) => {
                 if (err != null) {
@@ -341,6 +392,9 @@ module.exports = (app) => {
 
     /* Print All User Path*/
     router.get('/print', function (req, res) {
+        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            return res.redirect('https://' + req.get('host') + req.url);
+        }
         if (req.session.user.admin == 1) {
             AM.getAllRecords(function (e, accounts) {
                 DM.getAllDevice(function (e, devices) {
@@ -354,6 +408,9 @@ module.exports = (app) => {
 
     /* System Utils */
     router.get('/status', function (req, res) {
+        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            return res.redirect('https://' + req.get('host') + req.url);
+        }
         if (req.session.user.admin == 1) {
             res.render('sysutils', { title: 'Information System' })
         } else {
@@ -363,13 +420,21 @@ module.exports = (app) => {
 
     /* LogOut Path */
     router.post('/logout', (req, res) => {
+        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            return res.redirect('https://' + req.get('host') + req.url);
+        }
         logger.http('User %s has logout', req.session.user.username)
         res.clearCookie('login');
         req.session.destroy(function (e) { res.status(200).send('ok'); });
     })
 
     /* Error path handler */
-    router.get('*', function (req, res) { res.render('error', { title: 'Page Not Found', message: 'I\'m sorry, the page or resource you are searching for is currently unavailable.' }); });
+    router.get('*', function (req, res) {
+        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            return res.redirect('https://' + req.get('host') + req.url);
+        }
+        res.render('error', { title: 'Page Not Found', message: 'I\'m sorry, the page or resource you are searching for is currently unavailable.' });
+    });
 
     return router
 }

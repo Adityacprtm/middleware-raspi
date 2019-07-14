@@ -16,13 +16,14 @@ block content
             .collapse.navbar-collapse.justify-content-end#navbarNavAltMarkup
                 .navbar-nav
                     if user.admin == 1
-                        button.btn.navbar-btn.btn-outline-danger#btn-logout Sign Out
                         button.btn.navbar-btn.btn-outline-primary#btn-print Print
-                        button.btn.navbar-btn.btn-outline-primary#btn-sysutils Status
-                    else
+                        button.btn.navbar-btn.btn-outline-info#btn-sysutils Status
                         button.btn.navbar-btn.btn-outline-danger#btn-logout Sign Out
+                    else
                         button.btn.navbar-btn.btn-outline-success#btn-add-device Add Device
                         button.btn.navbar-btn.btn-outline-primary#btn-device Devices
+                        button.btn.navbar-btn.btn-outline-info#btn-account Account
+                        button.btn.navbar-btn.btn-outline-danger#btn-logout Sign Out
 
     .jumbotron.jumbotron-fluid.bg-light
         .container
@@ -42,42 +43,37 @@ block content
                     .form-group.row
                         label.col-sm-3.col-form-label.col-form-label-sm Name
                         .col-sm-9
-                            input.form-control#name-tf(type='text', name='name', value= user.name)
+                            input.form-control#name-tf(readonly, type='text', name='name', value= user.name)
 
                     .form-group.row
                         label.col-sm-3.col-form-label.col-form-label-sm Email
                         .col-sm-9
-                            input.form-control#email-tf(type='email', name='email', value= user.email)
+                            input.form-control#email-tf(readonly, type='email', name='email', value= user.email)
 
                     .form-group.row
                         label.col-sm-3.col-form-label.col-form-label-sm Username
                         .col-sm-9
-                            input.form-control(disabled='', type='text', name='user', value= user.username)
+                            input.form-control#usrname-tf(readonly, type='text', name='user', value= user.username)
 
-                    .form-group.row
-                        label.col-sm-3.col-form-label.col-form-label-sm Password
-                        .col-sm-9
-                            input.form-control#pass-tf(type='password', name='pass', value='')
-
-                    .form-buttons
-                        button(type='button')#account-form-btn1.btn.btn-outline-dark
-                        button(type='submit')#account-form-btn2.btn.btn-primary
-                    br
+                    //- .form-buttons
+                    //-     button(type='button')#account-form-btn1.btn.btn-outline-dark
+                    //-     button(type='submit')#account-form-btn2.btn.btn-primary
+                    //- br
                     hr
                     if user.admin == 0
                         .form-group.row
                             label.col-sm-3.col-form-label.col-form-label-sm Devices
                             .col-sm-9
-                                input.form-control(disabled='', type='text', name='device', value= len)
+                                input.form-control(readonly, type='text', name='device', value= len)
 
                         .form-group.row
                             label.col-sm-3.col-form-label.col-form-label-sm Active Topics
                             .col-sm-9
                                 each dvct in device
                                     if dvct.topic != null
-                                        input.form-control(disabled='', value= dvct.topic)
+                                        input.form-control(readonly, value= dvct.topic)
                                 else
-                                    input.form-control(disabled='', value= 0)
+                                    input.form-control(readonly, value= 0)
 
     if user.admin == 1
         br

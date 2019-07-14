@@ -26,13 +26,14 @@ module.exports = (app) => {
 
             if (parseUrl.query.token) {
                 token = parseUrl.query.token
+                payload = req.payload
             } else if (parsePayload.token) {
                 token = parsePayload.token
                 delete parsePayload.token
                 payload = Buffer.from(JSON.stringify(data))
             }
 
-            topic = DM.buildTopic(/^\/r\/(.+)$/.exec(req.url)[1])
+            topic = (/^\/r\/(.+)$/.exec(req.url)[1]).split("?")[0]
 
             if (!token) {
                 logger.coap('Server has refused, client %s do not have tokens', req.rsinfo.address)
@@ -52,7 +53,7 @@ module.exports = (app) => {
                     } else {
                         if (reply.status) {
                             if (reply.data.role == 'publisher') {
-                                DM.buildTopic(reply.data.device_id, topic, (e,o) => {
+                                DM.buildTopic(reply.data.device_id, topic, (e, o) => {
                                     DM.saveTopic(reply.data.device_id, o)
                                     Data.findOrCreate(o, payload)
                                     logger.coap('Incoming %s request from %s for topic %s ', req.method, req.rsinfo.address, topic)

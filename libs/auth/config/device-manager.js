@@ -77,21 +77,21 @@ exports.updateDevice = function (newData, callback) {
 }
 
 exports.checkId = function (id, callback) {
-    db.get('SELECT device_name,device_id,role,description,user,date,topic FROM devices WHERE device_id=?', id, (err, rep) => {
+    db.get('SELECT device_name,device_id,device_password,role,description,user,date,topic FROM devices WHERE device_id=?', id, (err, rep) => {
         if (rep) { callback(null, rep) }
         else { callback(err, null) }
     })
 }
 
 exports.getDevice = function (user, callback) {
-    db.all('SELECT evice_name,device_id,role,description,user,date,topic FROM devices WHERE user=?', user, (e, res) => {
+    db.all('SELECT device_name,device_id,device_password,role,description,user,date,topic FROM devices WHERE user=?', user, (e, res) => {
         if (e) callback(e)
         else callback(null, res)
     })
 }
 
 exports.getAllDevice = function (callback) {
-    db.all('SELECT evice_name,device_id,role,description,user,date,topic FROM devices', (e, res) => {
+    db.all('SELECT device_name,device_id,device_password,role,description,user,date,topic FROM devices', (e, res) => {
         if (e) callback(e)
         else callback(null, res)
     })

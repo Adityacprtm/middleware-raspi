@@ -46,7 +46,7 @@ module.exports = (app) => {
                 if (packet.qos == 1) {
                     client.puback({ messageId: packet.messageId })
                 }
-                return DM.buildTopic(client.device_id, packet.topic , (e,o) => {
+                return DM.buildTopic(client.device_id, packet.topic, (e, o) => {
                     DM.saveTopic(client.device_id, o)
                     Data.findOrCreate(o, packet.payload)
                 })

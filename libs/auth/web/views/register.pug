@@ -17,18 +17,10 @@ input(type='hidden', value= device._id)#userId
 			.form-group.row
 				label.col-sm-4.col-form-label.col-form-label-sm#pwd-lb Device Password
 				.col-sm-7
-					input.form-control#pwd-tf(type='text', name='device_password', value=device.password)
-			
-			.form-group.row
-				label.col-sm-4.col-form-label.col-form-label-sm#key-lb Key
-				.col-sm-7
-					input.form-control#key-tf(type='text', name='key', value=device.key)
-
-			.form-group.row
-				label.col-sm-4.col-form-label.col-form-label-sm#iv-lb IV
-				.col-sm-7
-					input.form-control#iv-tf(type='text', name='iv', value=device.iv)
+					input.form-control#pwd-tf(type='text', name='device_password', value=device.device_password)
+					
 			hr
+
 		.form-group.row
 			label.col-sm-4.col-form-label.col-form-label-sm Device Name
 			.col-sm-7

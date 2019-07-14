@@ -5,7 +5,7 @@ const db = require('../db/db');
 
 /* Auto login validation methods */
 exports.autoLogin = function (user, pass, callback) {
-	db.get('SELECT password FROM accounts WHERE username=?', [user], (e, o) => {
+	db.get('SELECT * FROM accounts WHERE username=?', user, (e, o) => {
 		if (o) {
 			o.pass == pass ? callback(o) : callback(null);
 		} else {
@@ -16,7 +16,7 @@ exports.autoLogin = function (user, pass, callback) {
 
 /* Manual login validation methods */
 exports.manualLogin = function (user, pass, callback) {
-	db.get('SELECT name,email,username,date FROM accounts WHERE username=?', [user], (e, o) => {
+	db.get('SELECT * FROM accounts WHERE username=?', user, (e, o) => {
 		if (o == null) {
 			callback('user-not-found');
 		} else {
@@ -41,7 +41,9 @@ exports.generateLoginKey = function (user, ipAddress, callback) {
 
 /* Validator cookie (Login Key) methods */
 exports.validateLoginKey = function (cookie, ipAddress, callback) {
-	db.get('SELECT username,password FROM accounts WHERE cookie=? AND ip=?', [cookie, ipAddress], callback);
+	db.get('SELECT username,password FROM accounts WHERE cookie=? AND ip=?', [cookie, ipAddress], (e,o) => {
+		callback(null,o)
+	});
 }
 
 /* insertion methods */
