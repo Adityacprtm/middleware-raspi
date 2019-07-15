@@ -23,6 +23,13 @@ block content
     include modals/alert
     include modals/confirm
 
+    script.
+        function copyText(target) {
+            var copyText = document.getElementById(target);
+            copyText.select();
+            document.execCommand("copy");
+        }
+
 block scripts
     script(src='/js/views/device.js')
     script(src='/js/controllers/deviceController.js')

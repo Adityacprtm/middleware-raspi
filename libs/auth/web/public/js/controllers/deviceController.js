@@ -1,4 +1,3 @@
-
 function DeviceController() {
 	// bind event listeners to button clicks //
 	let that = this;

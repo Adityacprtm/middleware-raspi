@@ -96,6 +96,12 @@ block content
     include modals/form-errors
 
     include footer
+    script.
+        function copyText(target) {
+            var copyText = document.getElementById(target);
+            copyText.select();
+            document.execCommand("copy");
+        }
 
 block scripts
     script(src='/js/views/dashboard.js')
