@@ -362,31 +362,35 @@ module.exports = (app) => {
         if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
             return res.redirect('https://' + req.get('host') + req.url);
         }
-        if (req.query.id) {
-            DM.deleteDevice(req.query.id, null, (err, obj) => {
-                if (err != null) {
-                    res.status(400).send('record not found');
-                } else {
-                    logger.http('User %s has deleted the device', req.session.user.username)
-                    res.status(200).send('ok');
-                }
-            })
+        if (req.session.user == null) {
+            res.redirect('/');
         } else {
-            AM.deleteAccount(req.session.user.username, function (err, obj) {
-                if (err != null) {
-                    res.status(400).send('record not found');
-                } else {
-                    DM.deleteDevice(null, req.session.user.username, (err, obj) => {
-                        if (err != null) {
-                            res.status(400).send('record not found');
-                        } else {
-                            logger.http('User %s has deleted the account and devices', req.session.user.username)
-                            res.clearCookie('login');
-                            req.session.destroy(function (e) { res.status(200).send('ok'); });
-                        }
-                    })
-                }
-            });
+            if (req.query.id) {
+                DM.deleteDevice(req.query.id, null, (err, obj) => {
+                    if (err != null) {
+                        res.status(400).send('record not found');
+                    } else {
+                        logger.http('User %s has deleted the device', req.session.user.username)
+                        res.status(200).send('ok');
+                    }
+                })
+            } else {
+                AM.deleteAccount(req.session.user.username, function (err, obj) {
+                    if (err != null) {
+                        res.status(400).send('record not found');
+                    } else {
+                        DM.deleteDevice(null, req.session.user.username, (err, obj) => {
+                            if (err != null) {
+                                res.status(400).send('record not found');
+                            } else {
+                                logger.http('User %s has deleted the account and devices', req.session.user.username)
+                                res.clearCookie('login');
+                                req.session.destroy(function (e) { res.status(200).send('ok'); });
+                            }
+                        })
+                    }
+                });
+            }
         }
     });
 
