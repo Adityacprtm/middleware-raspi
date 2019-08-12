@@ -23,7 +23,7 @@ block content
                 .form-group.row
                     label.col-sm-3.col-form-label.col-form-label-sm Username
                     .col-sm-9
-                        input.form-control(disabled='', type='text', name='user', value= user.username)
+                        input.form-control#username-tf(readonly, type='text', name='username', value= user.username)
 
                 .form-group.row
                     label.col-sm-3.col-form-label.col-form-label-sm Name
@@ -35,10 +35,10 @@ block content
                     .col-sm-9
                         input.form-control#email-tf(type='email', name='email', value= user.email)
 
-                .form-group.row
-                    label.col-sm-3.col-form-label.col-form-label-sm Password
-                    .col-sm-9
-                        input.form-control#pass-tf(type='password', name='pass', value='')
+                //- .form-group.row
+                //-     label.col-sm-3.col-form-label.col-form-label-sm Password
+                //-     .col-sm-9
+                //-         input.form-control#pass-tf(type='password', name='pass', value='')
 
                 .form-buttons
                     button(type='button')#account-form-btn1.btn.btn-outline-dark

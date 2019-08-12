@@ -1,5 +1,7 @@
 function AccountController() {
-    let that = this;
+	let that = this;
+	
+	$('#btn-logout').click(function () { that.attemptLogout(); });
 
     $('#btn-dashboard').click(function () { window.location.href = '/dashboard'; });
     
@@ -7,7 +9,22 @@ function AccountController() {
 	$('#account-form-btn1').click(function () { $('.modal-confirm').modal('show') });
 
 	// handle account deletion //
-    $('.modal-confirm .submit').click(function () { that.deleteAccount(); });
+	$('.modal-confirm .submit').click(function () { that.deleteAccount(); });
+	
+	this.attemptLogout = function () {
+		let that = this;
+		$.ajax({
+			url: '/logout',
+			type: 'POST',
+			data: { logout: true },
+			success: function (data) {
+				that.showLockedAlert('You are now logged out.<br>Redirecting you back to the homepage.');
+			},
+			error: function (jqXHR) {
+				console.log(jqXHR.responseText + ' :: ' + jqXHR.statusText);
+			}
+		});
+	}
     
     this.deleteAccount = function () {
 		$('.modal-confirm').modal('hide');

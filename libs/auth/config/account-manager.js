@@ -1,12 +1,13 @@
 const crypto = require('crypto');
 const db = require('../db/db');
+const DM = require('./device-manager')
 
 /* Public methods */
 
 /* Auto login validation methods */
 exports.autoLogin = function (user, pass, callback) {
 	db.get('SELECT * FROM accounts WHERE username=?', user, (e, o) => {
-		if (o) {
+		if (o && o.approved == 1) {
 			o.pass == pass ? callback(o) : callback(null);
 		} else {
 			callback(null);
@@ -17,16 +18,20 @@ exports.autoLogin = function (user, pass, callback) {
 /* Manual login validation methods */
 exports.manualLogin = function (user, pass, callback) {
 	db.get('SELECT * FROM accounts WHERE username=?', user, (e, o) => {
-		if (o == null) {
-			callback('user-not-found');
+		if (o) {
+			if (o.approved == 1) {
+				validatePassword(pass, o.password, function (err, res) {
+					if (res) {
+						callback(null, o);
+					} else {
+						callback('invalid-password');
+					}
+				});
+			} else {
+				callback('not-approved')
+			}
 		} else {
-			validatePassword(pass, o.password, function (err, res) {
-				if (res) {
-					callback(null, o);
-				} else {
-					callback('invalid-password');
-				}
-			});
+			callback('user-not-found');
 		}
 	})
 }
@@ -51,8 +56,8 @@ exports.addNewAccount = function (newData, callback) {
 	db.serialize(function () {
 		const query1 = 'SELECT username FROM accounts WHERE username=?';
 		const query2 = 'SELECT email FROM accounts WHERE email=?';
-		const query3 = 'INSERT INTO accounts (name,email,username,password,date,ip) VALUES (?,?,?,?,datetime("now", "localtime"),?)';
-		db.get(query1, [newData.user], (err, row) => {
+		const query3 = 'INSERT INTO accounts (name,email,username,password,ip,admin,date) VALUES (?,?,?,?,?,?,datetime("now", "localtime"))';
+		db.get(query1, [newData.username], (err, row) => {
 			if (err) throw err;
 			if (row) {
 				callback('username-taken');
@@ -61,11 +66,14 @@ exports.addNewAccount = function (newData, callback) {
 					if (row) {
 						callback('email-taken');
 					} else {
-						saltAndHash(newData.pass, function (hash) {
-							newData.pass = hash;
+						saltAndHash(newData.password, function (hash) {
+							newData.password = hash;
 							// append date stamp when record was created //
 							newData.date = new Date().toLocaleString()
-							db.run(query3, [newData.name, newData.email, newData.user, newData.pass, newData.ip], callback)
+							let admin
+							if (newData.admin == "true"){ admin = 1 }
+							else { admin = 0 }
+							db.run(query3, [newData.name, newData.email, newData.username, newData.password, newData.ip, admin], callback)
 						});
 					}
 				})
@@ -77,42 +85,62 @@ exports.addNewAccount = function (newData, callback) {
 /* Update methods */
 exports.updateAccount = function (newData, callback) {
 	let findOneAndUpdate = function (data) {
-		let o = {
-			name: data.name,
-			email: data.email,
-		}
-		if (data.pass) o.pass = data.pass;
-		db.run('UPDATE accounts SET name=?,email=?,password=? WHERE id=?', [o.name, o.email, o.pass, data.id]);
-		db.get('SELECT name,email,username,date FROM accounts WHERE id=?', [data.id], (e, o) => {
+		// let o = {
+		// 	name: data.name,
+		// 	email: data.email,
+		// }
+		// if (data.pass) o.pass = data.pass;
+		db.run('UPDATE accounts SET name=?,email=? WHERE username=?', [data.name, data.email, data.username]);
+		db.get('SELECT name,email,username,date FROM accounts WHERE username=?', [data.username], (e, o) => {
 			callback(null, o)
 		})
 	}
-	if (newData.pass == '') {
-		findOneAndUpdate(newData);
-	} else {
-		saltAndHash(newData.pass, function (hash) {
-			newData.pass = hash;
-			findOneAndUpdate(newData);
-		});
-	}
+	findOneAndUpdate(newData);
+	// if (newData.pass == '') {
+	// 	findOneAndUpdate(newData);
+	// } else {
+	// 	saltAndHash(newData.pass, function (hash) {
+	// 		newData.pass = hash;
+	// 		findOneAndUpdate(newData);
+	// 	});
+	// }
 }
 
 /* Delete methods */
-exports.deleteAccount = function (user, callback) {
-	db.run('DELETE FROM accounts WHERE username=?', user, (err, o) => {
+exports.deleteAccount = function (username, callback) {
+	db.run('DELETE FROM accounts WHERE username=?', username, (err, o) => {
 		if (err) { callback(err, null) }
-		else (callback(null, o))
+		else {
+			DM.deleteDevice(null, username, (err,o) => {
+				if (err) { callback(err, null) }
+				else { (callback(null, o)) }
+			})
+		}
 	})
 }
 
 /* account lookup methods */
 exports.getAllRecords = function (callback) {
-	db.all('SELECT name,email,username,date,admin,date FROM accounts', (err, row) => {
+	db.all('SELECT name,email,username,date,admin,date,approved FROM accounts', (err, row) => {
 		if (err) {
 			callback(err)
 		} else {
 			callback(null, row)
 		}
+	})
+}
+
+exports.approveAccount = function (username, callback) {
+	db.run('Update accounts SET approved=1 WHERE username=?', username, (e, o) => {
+		if (e) { callback(err, null) }
+		else (callback(null, o))
+	})
+}
+
+exports.declineAccount = function (username, callback) {
+	db.run('Update accounts SET approved=0 WHERE username=?', username, (e, o) => {
+		if (e) { callback(err, null) }
+		else (callback(null, o))
 	})
 }
 

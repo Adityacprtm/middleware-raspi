@@ -14,14 +14,14 @@ function AccountValidator() {
 		return s.length >= 3;
 	}
 
-	this.validatePassword = function (s) {
-		// if user is logged in and hasn't changed their password, return ok
-		if ($('#userId').val() && s === '') {
-			return true;
-		} else {
-			return s.length >= 6;
-		}
-	}
+	// this.validatePassword = function (s) {
+	// 	// if user is logged in and hasn't changed their password, return ok
+	// 	if ($('#userId').val() && s === '') {
+	// 		return true;
+	// 	} else {
+	// 		return s.length >= 6;
+	// 	}
+	// }
 
 	this.validateEmail = function (e) {
 		let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -57,10 +57,10 @@ AccountValidator.prototype.validateForm = function () {
 	if (this.validateEmail(this.formFields[1].val()) == false) {
 		this.controlGroups[1].addClass('error'); e.push('Please Enter A Valid Email');
 	}
-	if (this.validatePassword(this.formFields[2].val()) == false) {
-		this.controlGroups[2].addClass('error');
-		e.push('Password Should Be At Least 6 Characters');
-	}
+	// if (this.validatePassword(this.formFields[2].val()) == false) {
+	// 	this.controlGroups[2].addClass('error');
+	// 	e.push('Password Should Be At Least 6 Characters');
+	// }
 	if (e.length) this.showErrors(e);
 	return e.length === 0;
 }

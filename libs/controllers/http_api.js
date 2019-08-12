@@ -128,8 +128,9 @@ module.exports = (app) => {
             if (ip.substr(0, 7) == "::ffff:") {
                 ip = ip.substr(7)
             }
-            AM.manualLogin(req.body['user'], req.body['pass'], function (e, o) {
+            AM.manualLogin(req.body['username'], req.body['password'], function (e, o) {
                 if (!o) {
+                    console.log(e)
                     res.status(400).send(e);
                 } else {
                     req.session.user = o;
@@ -157,14 +158,14 @@ module.exports = (app) => {
             AM.addNewAccount({
                 name: req.body['name'],
                 email: req.body['email'],
-                user: req.body['user'],
-                pass: req.body['pass'],
-                admin: false
+                username: req.body['username'],
+                password: req.body['password'],
+                admin: req.body['checkbox']
             }, function (err) {
                 if (err) {
                     res.status(400).send(err);
                 } else {
-                    logger.http('User %s has registered', req.body['user'])
+                    logger.http('User %s has registered', req.body['username'])
                     res.status(200).send('ok');
                 }
             });
@@ -266,17 +267,22 @@ module.exports = (app) => {
                 res.redirect('/');
             } else {
                 AM.updateAccount({
-                    id: req.session.user.id,
+                    //id: req.session.user.id,
+                    username: req.body['username'],
                     name: req.body['name'],
-                    email: req.body['email'],
-                    pass: req.body['pass']
+                    email: req.body['email']
+                    //pass: req.body['password']
                 }, function (e, o) {
                     if (e) {
                         res.status(400).send('error-updating-account');
                     } else {
-                        req.session.user = o;
                         logger.http('User %s has changed the account', req.session.user.username)
-                        res.status(200).send('ok');
+                        if (req.session.user.admin == 1) {
+                            res.redirect('/print')
+                        } else {
+                            req.session.user = o;
+                            res.status(200).send('ok');
+                        }
                     }
                 });
             }
@@ -375,21 +381,31 @@ module.exports = (app) => {
                     }
                 })
             } else {
-                AM.deleteAccount(req.session.user.username, function (err, obj) {
-                    if (err != null) {
-                        res.status(400).send('record not found');
-                    } else {
-                        DM.deleteDevice(null, req.session.user.username, (err, obj) => {
-                            if (err != null) {
-                                res.status(400).send('record not found');
-                            } else {
-                                logger.http('User %s has deleted the account and devices', req.session.user.username)
-                                res.clearCookie('login');
-                                req.session.destroy(function (e) { res.status(200).send('ok'); });
-                            }
-                        })
-                    }
-                });
+                if (req.body['username']) {
+                    AM.deleteAccount(req.body['username'], function (err, obj) {
+                        if (err != null) {
+                            res.status(400).send('record not found');
+                        } else {
+                            res.redirect('/print')
+                        }
+                    })
+                } else {
+                    AM.deleteAccount(req.session.user.username, function (err, obj) {
+                        if (err != null) {
+                            res.status(400).send('record not found');
+                        } else {
+                            DM.deleteDevice(null, req.session.user.username, (err, obj) => {
+                                if (err != null) {
+                                    res.status(400).send('record not found');
+                                } else {
+                                    logger.http('User %s has deleted the account and devices', req.session.user.username)
+                                    res.clearCookie('login');
+                                    req.session.destroy(function (e) { res.status(200).send('ok'); });
+                                }
+                            })
+                        }
+                    });
+                }
             }
         }
     });
@@ -430,6 +446,40 @@ module.exports = (app) => {
         logger.http('User %s has logout', req.session.user.username)
         res.clearCookie('login');
         req.session.destroy(function (e) { res.status(200).send('ok'); });
+    })
+
+    router.post('/approve', (req,res) => {
+        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            return res.redirect('https://' + req.get('host') + req.url);
+        }
+        if (req.session.user == null) {
+            res.redirect('/');
+        } else {
+            AM.approveAccount(req.body['username'], (e,o) => {
+                if (e != null) {
+                    res.status(400).send('record not found');
+                } else {
+                    res.redirect('/print')
+                }
+            })
+        }
+    })
+
+    router.post('/decline', (req,res) => {
+        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            return res.redirect('https://' + req.get('host') + req.url);
+        }
+        if (req.session.user == null) {
+            res.redirect('/');
+        } else {
+            AM.declineAccount(req.body['username'], (e,o) => {
+                if (e != null) {
+                    res.status(400).send('record not found');
+                } else {
+                    res.redirect('/print')
+                }
+            })
+        }
     })
 
     /* Error path handler */

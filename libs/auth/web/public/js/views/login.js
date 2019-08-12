@@ -20,7 +20,15 @@ $(document).ready(function () {
 			if (status == 'success') window.location.href = '/dashboard';
 		},
 		error: function (e) {
-			lv.showLoginError('Login Failure', 'Please check your username and/or password');
+			console.log(e.responseText)
+			if (e.responseText == 'not-approved') {
+				lv.showInvalidApproved();
+			} else if (e.responseText == 'user-not-found') {
+				lv.showInvalidUser();
+			} else{
+				lv.showLoginError('Login Failure', 'Please check your username and/or password');
+			}
+			
 		}
 	});
 
@@ -38,30 +46,30 @@ $(document).ready(function () {
 
 	var ev = new EmailValidator();
 	
-	$('#get-credentials-form').ajaxForm({
-		url: '/lost-password',
-		beforeSubmit : function(formData, jqForm, options){
-			if (ev.validateEmail($('#email-tf').val())){
-				ev.hideEmailAlert();
-				return true;
-			}	else{
-				ev.showEmailAlert("Please enter a valid email address");
-				return false;
-			}
-		},
-		success	: function(responseText, status, xhr, $form){
-			$('#cancel').html('OK');
-			$('#retrieve-password-submit').hide();
-			ev.showEmailSuccess("A link to reset your password was emailed to you.");
-		},
-		error : function(e){
-			if (e.responseText == 'email-not-found'){
-				ev.showEmailAlert("Email not found. Are you sure you entered it correctly?");
-			}	else{
-				$('#cancel').html('OK');
-				$('#retrieve-password-submit').hide();
-				ev.showEmailAlert("Sorry. There was a problem, please try again later.");
-			}
-		}
-	});
+	// $('#get-credentials-form').ajaxForm({
+	// 	url: '/lost-password',
+	// 	beforeSubmit : function(formData, jqForm, options){
+	// 		if (ev.validateEmail($('#email-tf').val())){
+	// 			ev.hideEmailAlert();
+	// 			return true;
+	// 		}	else{
+	// 			ev.showEmailAlert("Please enter a valid email address");
+	// 			return false;
+	// 		}
+	// 	},
+	// 	success	: function(responseText, status, xhr, $form){
+	// 		$('#cancel').html('OK');
+	// 		$('#retrieve-password-submit').hide();
+	// 		ev.showEmailSuccess("A link to reset your password was emailed to you.");
+	// 	},
+	// 	error : function(e){
+	// 		if (e.responseText == 'email-not-found'){
+	// 			ev.showEmailAlert("Email not found. Are you sure you entered it correctly?");
+	// 		}	else{
+	// 			$('#cancel').html('OK');
+	// 			$('#retrieve-password-submit').hide();
+	// 			ev.showEmailAlert("Sorry. There was a problem, please try again later.");
+	// 		}
+	// 	}
+	// });
 });
