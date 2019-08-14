@@ -22,15 +22,11 @@ $(document).ready(function () {
     // customize the account settings form //
     $('#register-form h2').text('Things Registration');
     $('#register-form #sub').text('Register your things.');
-    $('#head-collapse').hide();
-    $('#id-lb').hide();
-    $('#id-tf').hide();
-    $('#pwd-lb').hide();
-    $('#pwd-tf').hide();
-    $('#key-lb').hide();
-    $('#key-tf').hide();
-    $('#iv-lb').hide();
-    $('#iv-tf').hide();
+    $('#head-collapse').remove();
+    $('#id-lb').remove();
+    $('#id-tf').remove();
+    $('#pwd-lb').remove();
+    $('#pwd-tf').remove();
     $('#register-form-btn1').html('Cancel');
     $('#register-form-btn2').html('Submit');
     $('#register-form-btn2').addClass('btn-primary');
