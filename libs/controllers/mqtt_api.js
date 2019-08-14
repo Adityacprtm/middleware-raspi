@@ -2,7 +2,7 @@ module.exports = (app) => {
 
     const logger = app.helpers.winston
     const Data = app.models.Data
-    const DM = require('../auth/config/device-manager')
+    const TM = require('../auth/config/things-manager')
 
     return function (client) {
         let self = this
@@ -16,7 +16,7 @@ module.exports = (app) => {
             client.id = packet.clientId
             client.subscriptions = []
 
-            DM.validity(token, (err, reply) => {
+            TM.validity(token, (err, reply) => {
                 if (err != null) {
                     logger.error('There\'s an error: %s', err)
                     client.connack({
@@ -24,7 +24,7 @@ module.exports = (app) => {
                     })
                 } else {
                     client.role = reply.data.role
-                    client.device_id = reply.data.device_id
+                    client.things_id = reply.data.things_id
                     if (reply.status) {
                         client.connack({
                             returnCode: 0
@@ -46,8 +46,8 @@ module.exports = (app) => {
                 if (packet.qos == 1) {
                     client.puback({ messageId: packet.messageId })
                 }
-                return DM.buildTopic(client.device_id, packet.topic, (e, o) => {
-                    DM.saveTopic(client.device_id, o)
+                return TM.buildTopic(client.things_id, packet.topic, (e, o) => {
+                    TM.saveTopic(client.things_id, o)
                     Data.findOrCreate(o, packet.payload)
                 })
             } else {
@@ -120,20 +120,20 @@ module.exports = (app) => {
 
         client.on('disconnect', () => {
             logger.mqtt('Client %s has disconnected', client.id)
-            DM.deleteTopic(client.device_id)
+            TM.deleteTopic(client.things_id)
             client.stream.end()
         });
 
         client.on('error', (error) => {
             logger.error('Client %s got an error : %s', 'ERROR', error)
-            DM.deleteTopic(client.device_id)
+            TM.deleteTopic(client.things_id)
             client.stream.end()
         });
 
         client.on('close', (error) => {
             if (error) logger.error(error)
             logger.mqtt('Client %s has closed connection', client.id)
-            DM.deleteTopic(client.device_id)
+            TM.deleteTopic(client.things_id)
             delete self.clients[client.id]
         });
 

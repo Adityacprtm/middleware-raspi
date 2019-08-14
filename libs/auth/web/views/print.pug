@@ -1,9 +1,8 @@
 extends layout
 
 block content
-	nav.navbar.sticky-top.navbar-expand-lg.navbar-light.bg-light
-		.container
-			a.navbar-brand(href='/dashboard') Dashboard
+
+	include navbar
 	
 	div.container(style='margin:20px auto')
 		.card.card-body.bg-light.shadow
@@ -12,8 +11,8 @@ block content
 			hr
 			.table-responsive-sm
 				button.btn.btn-success(data-toggle="modal" data-target="#myModalAdd" style="margin-bottom:5px;") Add Account
-				table.table.hover#account-table
-					thead.thead-dark
+				table.table.table-hover#account-table
+					thead.thead-light
 						tr
 							th Username
 							th Name
@@ -23,46 +22,44 @@ block content
 							th Action
 					tbody
 						each val in accts
-							if (val.admin == 1)
-								- role = "admin"
-							else
-								- role = "user"
 							tr
 								td= val.username
 								td= val.name
 								td= val.email
 								td= val.date
 								td
-									//- input.btn-sm.btn-primary(type='button' disabled value=role)
-									a.btn.btn-sm.btn-primary.role(href='javascript:void(0);' data-username=val.username readonly)= role
+									if (val.admin == 1)
+										a.btn.btn-sm.btn-primary.disabled.role(href='javascript:void(0);' data-username=val.username) admin
+									else
+										a.btn.btn-sm.btn-secondary.disabled.role(href='javascript:void(0);' data-username=val.username) user
 								td
 									a.btn.btn-sm.btn-info.edit(href='javascript:void(0);' data-username=val.username data-email=val.email data-name=val.name) Edit
 									a.btn.btn-sm.btn-danger.delete(href='javascript:void(0);' data-username=val.username) Delete
 									if val.approved == 1
-										a.btn.btn-sm.btn-secondary.decline(href='javascript:void(0);' data-username=val.username) Decline
+										a.btn.btn-sm.btn-dark.decline(href='javascript:void(0);' data-username=val.username) Decline
 									else
 										a.btn.btn-sm.btn-success.approve(href='javascript:void(0);' data-username=val.username) Approve
 		br
 		.card.card-body.bg-light.shadow
 			h3#page-header
-				a.text-decoration-none List Devices
+				a.text-decoration-none List Things
 			hr
 			.table-responsive-sm
-				table.table.table-striped#device-table
-					thead.thead-dark
+				table.table.table-hover#things-table
+					thead.thead-light
 						tr
 							th User
-							th Device Name
+							th Things Name
 							th Role
 							th Topic
 							th Description
-							th Device Created
+							th Things Created
 					tbody
-						each val in dvc
+						each val in thing
 							- if (!val.topic) val.topic='Not available yet'
 							tr
 								td= val.user
-								td= val.device_name
+								td= val.things_name
 								td= val.role
 								td= val.topic
 								td= val.description
@@ -74,6 +71,7 @@ block content
 	include modals/update
 	include modals/add-account
 	include modals/form-errors
+	include modals/alert
 
 block scripts
 	script(src='/js/views/print.js')

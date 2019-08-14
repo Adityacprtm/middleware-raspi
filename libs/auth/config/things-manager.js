@@ -4,7 +4,7 @@ const db = require('../db/db');
 
 /* Request Token */
 exports.request = function (payload, callback) {
-    db.get('SELECT * FROM devices WHERE device_id=? AND device_password=?', [payload.device_id, payload.device_password], (err, docs) => {
+    db.get('SELECT * FROM things WHERE things_id=? AND things_password=?', [payload.things_id, payload.things_password], (err, docs) => {
         if (err) { callback(err, null) }
         if (docs) {
             if (docs.token) {
@@ -32,7 +32,7 @@ exports.request = function (payload, callback) {
                 })
             }
         } else {
-            callback('Device Not Registered', null)
+            callback('Things Not Registered', null)
         }
     })
 }
@@ -42,7 +42,7 @@ exports.validity = function (token, callback) {
         if (err != null) {
             callback(err, { 'status': false })
         } else {
-            db.get('SELECT device_id FROM devices WHERE device_id=?', reply.device_id, (e, o) => {
+            db.get('SELECT things_id FROM things WHERE things_id=?', reply.things_id, (e, o) => {
                 if (o) { callback(null, { 'status': true, 'data': reply }) }
                 else { callback(err, { 'status': false }) }
             })
@@ -50,20 +50,20 @@ exports.validity = function (token, callback) {
     })
 }
 
-exports.addDevice = function (dataDevice, callback) {
+exports.addThings = function (dataThings, callback) {
     let tempId
-    db.get('SELECT * FROM devices WHERE device_name=? AND user=?', [dataDevice.device_name, dataDevice.user], (err, dvc) => {
+    db.get('SELECT * FROM things WHERE things_name=? AND user=?', [dataThings.things_name, dataThings.user], (err, dvc) => {
         if (dvc) {
-            callback('device-name-taken')
+            callback('things-name-taken')
         } else {
-            tempId = hashing(dataDevice.device_name, Date.now())
-            db.get('SELECT device_id FROM devices WHERE device_id=?', tempId, (err, rep) => {
+            tempId = hashing(dataThings.things_name, Date.now())
+            db.get('SELECT things_id FROM things WHERE things_id=?', tempId, (err, rep) => {
                 if (err) { callback(err) }
-                if (rep) { dataDevice.device_id = hashing(dataDevice.device_name, Date.now()) } 
-                else { dataDevice.device_id = tempId }
-                dataDevice.topic_id = generateTopicId()
-                dataDevice.device_password = hashing(dataDevice.user, Date.now())
-                db.run('INSERT INTO devices (device_name,role,description,user,device_id,device_password,topic_id,date) VALUES (?,?,?,?,?,?,?,datetime("now","localtime"))', [dataDevice.device_name, dataDevice.role, dataDevice.description, dataDevice.user, dataDevice.device_id, dataDevice.device_password, dataDevice.topic_id], (err, o) => {
+                if (rep) { dataThings.things_id = hashing(dataThings.things_name, Date.now()) } 
+                else { dataThings.things_id = tempId }
+                dataThings.topic_id = generateTopicId()
+                dataThings.things_password = hashing(dataThings.user, Date.now())
+                db.run('INSERT INTO things (things_name,role,description,user,things_id,things_password,topic_id,date) VALUES (?,?,?,?,?,?,?,datetime("now","localtime"))', [dataThings.things_name, dataThings.role, dataThings.description, dataThings.user, dataThings.things_id, dataThings.things_password, dataThings.topic_id], (err, o) => {
                     if (err) { callback(err) }
                     else { callback(null) }
                 })
@@ -72,49 +72,49 @@ exports.addDevice = function (dataDevice, callback) {
     })
 }
 
-exports.updateDevice = function (newData, callback) {
-    db.run('UPDATE devices SET role=?,description=? WHERE device_id=?', [newData.role, newData.description, newData.device_id], callback)
+exports.updateThings = function (newData, callback) {
+    db.run('UPDATE things SET role=?,description=? WHERE things_id=?', [newData.role, newData.description, newData.things_id], callback)
 }
 
 exports.checkId = function (id, callback) {
-    db.get('SELECT device_name,device_id,device_password,role,description,user,date,topic FROM devices WHERE device_id=?', id, (err, rep) => {
+    db.get('SELECT things_name,things_id,things_password,role,description,user,date,topic FROM things WHERE things_id=?', id, (err, rep) => {
         if (rep) { callback(null, rep) }
         else { callback(err, null) }
     })
 }
 
-exports.getDevice = function (user, callback) {
-    db.all('SELECT device_name,device_id,device_password,role,description,user,date,topic FROM devices WHERE user=?', user, (e, res) => {
+exports.getThings = function (user, callback) {
+    db.all('SELECT things_name,things_id,things_password,role,description,user,date,topic FROM things WHERE user=?', user, (e, res) => {
         if (e) callback(e)
         else callback(null, res)
     })
 }
 
-exports.getAllDevice = function (callback) {
-    db.all('SELECT device_name,device_id,device_password,role,description,user,date,topic FROM devices', (e, res) => {
+exports.getAllThings = function (callback) {
+    db.all('SELECT things_name,things_id,things_password,role,description,user,date,topic FROM things', (e, res) => {
         if (e) callback(e)
         else callback(null, res)
     })
 }
 
-exports.deleteDevice = function (id, user, callback) {
+exports.deleteThings = function (id, user, callback) {
     if (id != null) {
-        db.run('DELETE FROM devices WHERE device_id=?', id, callback)
+        db.run('DELETE FROM things WHERE things_id=?', id, callback)
     } else if (user != null) {
-        db.run('DELETE FROM devices WHERE user=?', user, callback)
+        db.run('DELETE FROM things WHERE user=?', user, callback)
     }
 }
 
-exports.saveTopic = function (device_id, topic) {
-    db.run('UPDATE devices SET topic=? WHERE device_id=?', [topic, device_id])
+exports.saveTopic = function (things_id, topic) {
+    db.run('UPDATE things SET topic=? WHERE things_id=?', [topic, things_id])
 }
 
-exports.deleteTopic = function (device_id) {
-    db.run('UPDATE devices SET topic=null WHERE device_id=?', device_id)
+exports.deleteTopic = function (things_id) {
+    db.run('UPDATE things SET topic=null WHERE things_id=?', things_id)
 }
 
-exports.buildTopic = function (device_id, topic, callback) {
-    db.get('SELECT topic_id FROM devices WHERE device_id=?', device_id, (e,o) => {
+exports.buildTopic = function (things_id, topic, callback) {
+    db.get('SELECT topic_id FROM things WHERE things_id=?', things_id, (e,o) => {
         if (o) {
             callback(null, o.topic_id + '/' + topic)
         } else {
@@ -153,8 +153,8 @@ let checkToken = function (token, callback) {
 
 let generateToken = function (docs, callback) {
     let payload = {
-        device_id: docs.device_id,
-        device_name: docs.device_name,
+        things_id: docs.things_id,
+        things_name: docs.things_name,
         timestamp: docs.timestamp,
         role: docs.role
     }
@@ -162,7 +162,7 @@ let generateToken = function (docs, callback) {
         if (err) {
             callback(err.name, null)
         } else {
-            db.run('UPDATE devices SET ip=?,timestamp=?,token=? WHERE device_id=?', [docs.ip, docs.timestamp, token, docs.device_id], (err) => {
+            db.run('UPDATE things SET ip=?,timestamp=?,token=? WHERE things_id=?', [docs.ip, docs.timestamp, token, docs.things_id], (err) => {
                 if (err) callback(err, null)
             })
             callback(null, token)

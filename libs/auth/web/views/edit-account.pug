@@ -3,15 +3,7 @@ extends layout
 block content
     - user = typeof(usr) != 'undefined' ? usr : { }
 
-    nav.navbar.sticky-top.navbar-expand-lg.navbar-light.bg-light.shadow-sm
-        .container
-            a.navbar-brand(href='/dashboard') Dashboard
-            button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarNavAltMarkup')
-                span.navbar-toggler-icon
-            .collapse.navbar-collapse.justify-content-end#navbarNavAltMarkup
-                .navbar-nav
-                    button.btn.navbar-btn.btn-outline-primary#btn-dashboard Dashboard
-                    button.btn.navbar-btn.btn-outline-danger#btn-logout Sign Out
+    include navbar
 
     #box-form-container.center-vertical
         br
@@ -35,10 +27,10 @@ block content
                     .col-sm-9
                         input.form-control#email-tf(type='email', name='email', value= user.email)
 
-                //- .form-group.row
-                //-     label.col-sm-3.col-form-label.col-form-label-sm Password
-                //-     .col-sm-9
-                //-         input.form-control#pass-tf(type='password', name='pass', value='')
+                .form-group.row
+                    label.col-sm-3.col-form-label.col-form-label-sm Password
+                    .col-sm-9
+                        input.form-control#pass-tf(type='password', name='password', value='')
 
                 .form-buttons
                     button(type='button')#account-form-btn1.btn.btn-outline-dark
@@ -50,5 +42,4 @@ block content
 
 block scripts
     script(src='/js/views/edit-account.js')
-    script(src='/js/controllers/accountController.js')
     script(src='/js/form-validators/accountValidator.js')

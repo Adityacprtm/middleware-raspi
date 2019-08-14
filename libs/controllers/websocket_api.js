@@ -2,7 +2,7 @@ module.exports = (app) => {
 
     const logger = app.helpers.winston
     const Data = app.models.Data
-    const DM = require('../auth/config/device-manager')
+    const TM = require('../auth/config/things-manager')
 
     return io.on('connection', (socket) => {
         let token, subscriptions, subscription
@@ -10,7 +10,7 @@ module.exports = (app) => {
         if (socket.handshake.query && socket.handshake.query.token) {
             token = socket.handshake.query.token
             //logger.socket('Client %s connecting . . .', socket.id)
-            DM.validity(token, (err, reply) => {
+            TM.validity(token, (err, reply) => {
                 if (err != null) {
                     logger.error('There\'s an error: %s', err)
                     socket.emit('error_msg', err.message)

@@ -11,11 +11,15 @@ form(action='/account' method='post')
                         label Username
                         input.form-control.username(type='text' name='username' placeholder='Username' required='' readonly)
                     .form-group
+                        label Password
+                        input.form-control.password(type='password' name='password' placholder='Password')
+                    .form-group
                         label Email
                         input.form-control.email(type='email' name='email' placeholder='Email' required='')
                     .form-group
                         label Name
                         input.form-control.name(type='text' name='name' placeholder='Name' required='')
+
                 .modal-footer
                     input.product_id(type='hidden' name='id')
                     button.btn.btn-secondary(type='button' data-dismiss='modal') Close

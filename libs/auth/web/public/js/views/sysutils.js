@@ -1,4 +1,5 @@
 $(document).ready(function () {
+
     let interval = 5;
     let refresh = function () {
         $.ajax({
@@ -39,4 +40,35 @@ $(document).ready(function () {
         document.getElementById('countdown').innerHTML = 'Refreshing in ' + remaining + ' seconds';
         setTimeout(function () { countdown(remaining - 1); }, 1000);
     })(interval);
+
+    // delete unnecessary buttons 
+    $('#btn-things').remove()
+    $('#btn-things').remove()
+    $('#btn-add-things').remove()
+    $('#btn-account').remove()
+    $('#btn-dashboard').remove()
+
+    $('#btn-sysutils').addClass('active')
+
+    // actions button
+    $('#btn-print').click(function () { window.location.href = '/print'; });
+    $('#btn-dashboard').click(function () { window.location.href = '/dashboard'; });
+    $('#btn-logout').click(function () { 
+        $.ajax({
+            url: '/logout',
+            type: 'POST',
+            data: { logout: true },
+            success: function (data) {
+                $('.modal-alert').modal({ show: false, keyboard: false, backdrop: 'static' });
+                $('.modal-alert .modal-header h4').text('Success!');
+                $('.modal-alert .modal-body p').html('You are now logged out.<br>Redirecting you back to the homepage.');
+                $('.modal-alert').modal('show');
+                $('.modal-alert button').click(function () { window.location.href = '/'; })
+                setTimeout(function () { window.location.href = '/'; }, 3000);
+            },
+            error: function (jqXHR) {
+                console.log(jqXHR.responseText + ' :: ' + jqXHR.statusText);
+            }
+        });
+    });
 })

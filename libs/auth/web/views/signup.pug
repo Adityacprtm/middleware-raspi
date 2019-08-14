@@ -1,8 +1,6 @@
 extends layout
 
 block content
-	- user = typeof(udata) != 'undefined' ? udata : { }
-	input(type='hidden', value= user._id)#userId
 
 	#box-form-container.center-vertical.shadow
 		form.card.card-body.bg-light(method='post')#account-form
@@ -12,23 +10,23 @@ block content
 			.form-group.row
 				label.col-sm-3.col-form-label.col-form-label-sm Name
 				.col-sm-9
-					input.form-control#name-tf(type='text', name='name', value= user.name)
+					input.form-control#name-tf(type='text', name='name')
 
 			.form-group.row
 				label.col-sm-3.col-form-label.col-form-label-sm Email
 				.col-sm-9
-					input.form-control#email-tf(type='email', name='email', value= user.email)
+					input.form-control#email-tf(type='email', name='email')
 
 			hr
 			.form-group.row
 				label.col-sm-3.col-form-label.col-form-label-sm Username
 				.col-sm-9
-					input.form-control#user-tf(type='text', name='username', value= user.username).disabled
+					input.form-control#username-tf(type='text', name='username')
 
 			.form-group.row.margin-zero
 				label.col-sm-3.col-form-label.col-form-label-sm Password
 				.col-sm-9
-					input.form-control#pass-tf(type='password', name='password', value='')
+					input.form-control#password-tf(type='password', name='password')
 
 			hr
 			.form-buttons
@@ -45,5 +43,4 @@ block content
 
 block scripts
 	script(src='/js/views/signup.js')
-	script(src='/js/controllers/signupController.js')
 	script(src='/js/form-validators/accountValidator.js')

@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const db = require('../db/db');
-const DM = require('./device-manager')
+const TM = require('./things-manager')
 
 /* Public methods */
 
@@ -85,25 +85,29 @@ exports.addNewAccount = function (newData, callback) {
 /* Update methods */
 exports.updateAccount = function (newData, callback) {
 	let findOneAndUpdate = function (data) {
-		// let o = {
-		// 	name: data.name,
-		// 	email: data.email,
-		// }
-		// if (data.pass) o.pass = data.pass;
-		db.run('UPDATE accounts SET name=?,email=? WHERE username=?', [data.name, data.email, data.username]);
+		let o = {
+			name: data.name,
+			email: data.email,
+		}
+		if (data.password) {
+			// o.pass = data.pass;
+			db.run('UPDATE accounts SET name=?,email=?,password=? WHERE username=?', [o.name, o.email, data.password, data.username]);
+		} else {
+			db.run('UPDATE accounts SET name=?,email=? WHERE username=?', [o.name, o.email, data.username]);
+		}
 		db.get('SELECT name,email,username,date FROM accounts WHERE username=?', [data.username], (e, o) => {
 			callback(null, o)
 		})
 	}
-	findOneAndUpdate(newData);
-	// if (newData.pass == '') {
-	// 	findOneAndUpdate(newData);
-	// } else {
-	// 	saltAndHash(newData.pass, function (hash) {
-	// 		newData.pass = hash;
-	// 		findOneAndUpdate(newData);
-	// 	});
-	// }
+	// findOneAndUpdate(newData);
+	if (newData.password == '') {
+		findOneAndUpdate(newData);
+	} else {
+		saltAndHash(newData.password, function (hash) {
+			newData.password = hash;
+			findOneAndUpdate(newData);
+		});
+	}
 }
 
 /* Delete methods */
@@ -111,7 +115,7 @@ exports.deleteAccount = function (username, callback) {
 	db.run('DELETE FROM accounts WHERE username=?', username, (err, o) => {
 		if (err) { callback(err, null) }
 		else {
-			DM.deleteDevice(null, username, (err,o) => {
+			DM.deleteThings(null, username, (err,o) => {
 				if (err) { callback(err, null) }
 				else { (callback(null, o)) }
 			})

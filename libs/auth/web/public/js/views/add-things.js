@@ -11,7 +11,7 @@ $(document).ready(function () {
             if (status == 'success') $('.modal-alert').modal('show');
         },
         error: function (err) {
-            if (err.responseText == 'device-name-taken') {
+            if (err.responseText == 'things-name-taken') {
                 rv.showInvalidName();
             }
         }
@@ -20,8 +20,8 @@ $(document).ready(function () {
     $('#name-tf').focus();
 
     // customize the account settings form //
-    $('#register-form h2').text('Device Registration');
-    $('#register-form #sub').text('Register your device.');
+    $('#register-form h2').text('Things Registration');
+    $('#register-form #sub').text('Register your things.');
     $('#head-collapse').hide();
     $('#id-lb').hide();
     $('#id-tf').hide();
@@ -39,6 +39,18 @@ $(document).ready(function () {
     // setup the alert that displays when an account is successfully created //
     $('.modal-alert').modal({ show: false, keyboard: false, backdrop: 'static' });
     $('.modal-alert .modal-header h4').text('Account Created!');
-    $('.modal-alert .modal-body p').html('Your device has been registered.</br>Click OK to return to the device list page.');
+    $('.modal-alert .modal-body p').html('Your thing has been registered.</br>Click OK to return to the things list page.');
 
+    // redirect to homepage when cancel button is clicked //
+    $('#register-form-btn1').click(function () { window.location.href = '/things'; });
+    // redirect to account
+    $('#btn-account').click(function () { window.location.href = '/account'; });
+
+    // remove unneeded nav button
+    $('#btn-print').remove()
+    $('#btn-sysutils').remove()
+    $('#btn-dashboard').remove()
+
+    // active navbar
+    $('#btn-add-things').addClass('active')
 })

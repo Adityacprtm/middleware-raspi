@@ -1,35 +1,5 @@
 $(document).ready(function () {
 
-	$('#btn-things').click(function () { window.location.href = '/things'; });
-	$('#btn-account').click(function () { window.location.href = '/account'; });
-	$('#btn-add-things').click(function () { window.location.href = '/register'; });
-	$('#btn-print').click(function () { window.location.href = '/print'; });
-    $('#btn-sysutils').click(function () { window.location.href = '/status'; });
-    $('#btn-logout').click(function () { 
-        $.ajax({
-			url: '/logout',
-			type: 'POST',
-			data: { logout: true },
-			success: function (data) {
-				showLockedAlert('You are now logged out.<br>Redirecting you back to the homepage.');
-			},
-			error: function (jqXHR) {
-				console.log(jqXHR.responseText + ' :: ' + jqXHR.statusText);
-			}
-		});
-    });
-
-	let showLockedAlert = function (msg) {
-		$('.modal-alert').modal({ show: false, keyboard: false, backdrop: 'static' });
-		$('.modal-alert .modal-header h4').text('Success!');
-		$('.modal-alert .modal-body p').html(msg);
-		$('.modal-alert').modal('show');
-		$('.modal-alert button').click(function () { window.location.href = '/'; })
-		setTimeout(function () { window.location.href = '/'; }, 3000);
-	}
-    /*
-        API things
-    */
     let a = [];
     let user;
     $.ajax({
@@ -48,7 +18,6 @@ $(document).ready(function () {
     })
 
     function handleView() {
-        $('#welcome-user').text('Welcome, ' + user);
         if (a.length == 0) {
             $('#page-header').html('No Things Registered')
         } else {
@@ -61,19 +30,46 @@ $(document).ready(function () {
         }
     }
 
-    if (document.getElementById('useradmin').value == 1){
-        $('#btn-things').remove()
-        $('#btn-add-things').remove()
-        $('#btn-dashboard').remove()
-    } else {
-        $('#btn-print').remove()
-        $('#btn-sysutils').remove()
-        $('#btn-dashboard').remove()
-    }
-
+    // copy text
     copyText = function (target) {
         var copyText = document.getElementById(target);
         copyText.select();
         document.execCommand("copy");
     }
+
+    // remove unneeded nav button
+    $('#btn-print').remove()
+    $('#btn-sysutils').remove()
+    $('#btn-dashboard').remove()
+
+    // active navbar
+    $('#btn-things').addClass('active')
+
+    // handle button register things page
+    $('#btn-add-things').click(function () { window.location.href = '/register'; });
+    $('#btn-account').click(function () { window.location.href = '/account'; });
+    $('#btn-things').click(function () { window.location.href = '/things'; });
+
+    $('#btn-logout').click(function () { 
+        $.ajax({
+			url: '/logout',
+			type: 'POST',
+			data: { logout: true },
+			success: function (data) {
+				showLockedAlert('You are now logged out.<br>Redirecting you back to the homepage.');
+			},
+			error: function (jqXHR) {
+				console.log(jqXHR.responseText + ' :: ' + jqXHR.statusText);
+			}
+		});
+    });
+
+    showLockedAlert = function (msg) {
+		$('.modal-alert').modal({ show: false, keyboard: false, backdrop: 'static' });
+		$('.modal-alert .modal-header h4').text('Success!');
+		$('.modal-alert .modal-body p').html(msg);
+		$('.modal-alert').modal('show');
+		$('.modal-alert button').click(function () { window.location.href = '/'; })
+		setTimeout(function () { window.location.href = '/'; }, 3000);
+	}
 })

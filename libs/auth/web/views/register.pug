@@ -1,5 +1,4 @@
-- device = typeof(dvc) != 'undefined' ? dvc : { }
-input(type='hidden', value= device._id)#userId
+- things = typeof(things) != 'undefined' ? things : { }
 
 #box-form-container.center-vertical.shadow
 	form.card.card-body.bg-light(method='post')#register-form
@@ -10,31 +9,31 @@ input(type='hidden', value= device._id)#userId
 			a.text-decoration-none.dropdown-toggle.btn.btn-primary(data-toggle='collapse', href="#collapseExample", role='button') Security Information 
 		.collapse(id="collapseExample")
 			.form-group.row
-				label.col-sm-4.col-form-label.col-form-label-sm#id-lb Device ID
+				label.col-sm-4.col-form-label.col-form-label-sm#id-lb Things ID
 				.col-sm-7
-					input.form-control#id-tf(type='text', name='device_id', value=device.device_id)
+					input.form-control#id-tf(type='text', name='things_id', value=things.things_id)
 			
 			.form-group.row
-				label.col-sm-4.col-form-label.col-form-label-sm#pwd-lb Device Password
+				label.col-sm-4.col-form-label.col-form-label-sm#pwd-lb Things Password
 				.col-sm-7
-					input.form-control#pwd-tf(type='text', name='device_password', value=device.device_password)
+					input.form-control#pwd-tf(type='text', name='things_password', value=things.things_password)
 					
 			hr
 
 		.form-group.row
-			label.col-sm-4.col-form-label.col-form-label-sm Device Name
+			label.col-sm-4.col-form-label.col-form-label-sm Things Name
 			.col-sm-7
-				input.form-control#name-tf(type='text', name='device_name', value=device.device_name)
+				input.form-control#name-tf(type='text', name='things_name', value=things.things_name)
 
 		.form-group.row
 			label.col-sm-4.col-form-label.col-form-label-sm Role
 			.col-sm-7
 				select.form-control#role-tf(name='role')
-					if device.role == 'publisher'
+					if things.role == 'publisher'
 						option(value='', disabled='') Select role
 						option(selected='') publisher
 						option subscriber
-					else if device.role == 'subscriber'
+					else if things.role == 'subscriber'
 						option(value='', disabled='') Select role
 						option publisher
 						option(selected='') subscriber
@@ -46,7 +45,7 @@ input(type='hidden', value= device._id)#userId
 		.form-group.row
 			label.col-sm-4.col-form-label.col-form-label-sm Description
 			.col-sm-7
-				input.form-control#desc-tf(type='text', name='description' value=device.description)
+				input.form-control#desc-tf(type='text', name='description' value=things.description)
 
 		hr
 		.form-buttons

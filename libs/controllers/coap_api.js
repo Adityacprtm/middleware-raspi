@@ -2,7 +2,7 @@ module.exports = (app) => {
 
     const logger = app.helpers.winston
     const Data = app.models.Data
-    const DM = require('../auth/config/device-manager')
+    const TM = require('../auth/config/things-manager')
     const url = require('url');
 
     return (req, res) => {
@@ -43,7 +43,7 @@ module.exports = (app) => {
                     additional: 'jwt must be provided'
                 })
             } else {
-                DM.validity(token, (err, reply) => {
+                TM.validity(token, (err, reply) => {
                     if (err != null) {
                         logger.error('There\'s an error: %s', err)
                         sendResponse('4.00', {
@@ -53,8 +53,8 @@ module.exports = (app) => {
                     } else {
                         if (reply.status) {
                             if (reply.data.role == 'publisher') {
-                                DM.buildTopic(reply.data.device_id, topic, (e, o) => {
-                                    DM.saveTopic(reply.data.device_id, o)
+                                TM.buildTopic(reply.data.things_id, topic, (e, o) => {
+                                    TM.saveTopic(reply.data.things_id, o)
                                     Data.findOrCreate(o, payload)
                                     logger.coap('Incoming %s request from %s for topic %s ', req.method, req.rsinfo.address, topic)
                                     sendResponse('2.01', {
@@ -108,7 +108,7 @@ module.exports = (app) => {
                     additional: 'jwt must be provided'
                 })
             } else {
-                DM.validity(token, (err, reply) => {
+                TM.validity(token, (err, reply) => {
                     if (err != null) {
                         logger.error('There\'s an error: %s', err)
                         sendResponse('5.00', {

@@ -10,7 +10,7 @@ function RegisterValidator() {
     this.alert = $('.modal-form-errors');
     this.alert.modal({ show: false, keyboard: true, backdrop: true });
 
-    this.validateDeviceName = function (s) {
+    this.validateThingsName = function (s) {
         return s.length >= 5;
     }
 
@@ -37,20 +37,20 @@ function RegisterValidator() {
 
 RegisterValidator.prototype.showInvalidName = function () {
     this.controlGroups[0].addClass('error');
-    this.showErrors(['That device name is already in use.']);
+    this.showErrors(['That things name is already in use.']);
 }
 
 RegisterValidator.prototype.validateForm = function () {
     let e = [];
     for (let i = 0; i < this.controlGroups.length; i++) this.controlGroups[i].removeClass('error');
-    if (this.validateDeviceName(this.formFields[0].val()) == false) {
-        this.controlGroups[0].addClass('error'); e.push('Please Enter Your Device Name');
+    if (this.validateThingsName(this.formFields[0].val()) == false) {
+        this.controlGroups[0].addClass('error'); e.push('Please Enter Your Things Name');
     }
     if (this.validateRole(this.formFields[1].val()) == false) {
         this.controlGroups[1].addClass('error'); e.push('Please Enter A Valid Role');
     }
     if (this.validateDescription(this.formFields[2].val()) == false) {
-        this.controlGroups[2].addClass('error'); e.push('Please Enter A Description Of Your Device');
+        this.controlGroups[2].addClass('error'); e.push('Please Enter A Description Of Your Things');
     }
     if (e.length) this.showErrors(e);
     return e.length === 0;

@@ -3,24 +3,24 @@ module.exports = (app) => {
     const logger = app.helpers.winston
     const router = require('express').Router()
     const AM = require('../auth/config/account-manager')
-    const DM = require('../auth/config/device-manager')
+    const TM = require('../auth/config/things-manager')
 
     /* 
-    Device Request
+    Thing Request
     */
-    /* Device request token */
-    router.route('/device/request')
+    /* thing request token */
+    router.route('/thing/request')
         .post((req, res) => {
             let ip, payload
             ip = req.ip
             if (ip.substr(0, 7) == "::ffff:") {
                 ip = ip.substr(7)
             }
-            logger.http('Incoming Device for %s request token from %s ', req.method, ip)
+            logger.http('Incoming Thing for %s request token from %s ', req.method, ip)
             payload = req.body
             payload.ip = ip
             payload.timestamp = Date.now().toString()
-            DM.request(payload, (err, data) => {
+            TM.request(payload, (err, data) => {
                 if (err != null) {
                     logger.http('Not generate token for %s, %s', ip, err)
                     res.format({
@@ -43,7 +43,7 @@ module.exports = (app) => {
             if (ip.substr(0, 7) == "::ffff:") {
                 ip = ip.substr(7)
             }
-            logger.http('Incoming Device for %s request token from %s ', req.method, ip)
+            logger.http('Incoming Thing for %s request token from %s ', req.method, ip)
             res.format({
                 'application/json': function () {
                     res.status(405).send({ message: 'Method Not Allowed' })
@@ -51,15 +51,15 @@ module.exports = (app) => {
             })
         })
 
-    router.route('/device/check')
+    router.route('/thing/check')
         .get((req, res) => {
             let ip = req.ip
             if (ip.substr(0, 7) == "::ffff:") {
                 ip = ip.substr(7)
             }
-            logger.http('Incoming Device for %s check token from %s ', req.method, ip)
+            logger.http('Incoming Thing for %s check token from %s ', req.method, ip)
             if (req.body.token) {
-                DM.validity(req.body.token, (err, reply) => {
+                TM.validity(req.body.token, (err, reply) => {
                     if (err != null) {
                         logger.error('There\'s an error: %s', err)
                         res.format({
@@ -181,18 +181,18 @@ module.exports = (app) => {
                 res.redirect('/');
             } else {
                 let user = req.session.user.username
-                DM.getDevice(user, (err, devices) => {
+                TM.getThings(user, (err, things) => {
                     res.render('dashboard', {
                         title: 'Dashboard',
-                        dvc: devices,
+                        things: things,
                         usr: req.session.user
                     })
                 })
             }
         })
 
-    /* Device Path */
-    router.route('/device')
+    /* Things Path */
+    router.route('/things')
         .get((req, res) => {
             if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
                 return res.redirect('https://' + req.get('host') + req.url);
@@ -202,19 +202,19 @@ module.exports = (app) => {
             } else {
                 if (req.query.id) {
                     let id = req.query.id
-                    DM.checkId(id, (err, data) => {
+                    TM.checkId(id, (err, data) => {
                         if (data == null) {
                             res.status(400);
                             res.render('error', { title: 'Page Not Found', message: 'I\'m sorry, the page or resource you are searching for is currently unavailable.' });
                         } else {
-                            res.render('edit-device', {
-                                title: 'Device Update',
-                                dvc: data
+                            res.render('edit-things', {
+                                title: 'Things Update',
+                                things: data
                             })
                         }
                     })
                 } else {
-                    res.render('device', { title: 'Devices' })
+                    res.render('things', { title: 'Things' })
                 }
             }
         })
@@ -226,19 +226,19 @@ module.exports = (app) => {
                 res.redirect('/');
             } else {
                 if (req.query.id) {
-                    DM.checkId(req.query.id, (err, o) => {
+                    TM.checkId(req.query.id, (err, o) => {
                         if (err) {
                             res.status(400).send('not-found');
                         } else {
-                            DM.updateDevice({
-                                device_id: req.query.id,
+                            TM.updateThings({
+                                things_id: req.query.id,
                                 role: req.body['role'],
                                 description: req.body['description']
                             }, (err, rep) => {
                                 if (err) {
                                     res.status(400).send(err);
                                 } else {
-                                    logger.http('User %s has changed the device data', req.session.user.username)
+                                    logger.http('User %s has changed the thing data', req.session.user.username)
                                     res.status(200).send('ok');
                                 }
                             })
@@ -270,8 +270,8 @@ module.exports = (app) => {
                     //id: req.session.user.id,
                     username: req.body['username'],
                     name: req.body['name'],
-                    email: req.body['email']
-                    //pass: req.body['password']
+                    email: req.body['email'],
+                    password: req.body['password']
                 }, function (e, o) {
                     if (e) {
                         res.status(400).send('error-updating-account');
@@ -288,8 +288,8 @@ module.exports = (app) => {
             }
         })
 
-    /* Get Device API */
-    router.get('/api/device', (req, res) => {
+    /* Get Things API */
+    router.get('/api/things', (req, res) => {
         if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
             return res.redirect('https://' + req.get('host') + req.url);
         }
@@ -297,8 +297,8 @@ module.exports = (app) => {
             res.redirect('/');
         } else {
             let user = req.session.user.username
-            DM.getDevice(user, (err, devices) => {
-                res.json({ user: user, dvc: devices })
+            TM.getThings(user, (err, things) => {
+                res.json({ user: user, thing: things })
             })
         }
     })
@@ -329,7 +329,7 @@ module.exports = (app) => {
         }
     })
 
-    /* Register device path */
+    /* Register Things path */
     router.route('/register')
         .get((req, res) => {
             if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
@@ -339,8 +339,8 @@ module.exports = (app) => {
                 res.redirect('/');
             } else {
                 let user = req.session.user.username
-                res.render('addDevice', {
-                    title: 'Register Device',
+                res.render('add-things', {
+                    title: 'Register Things',
                 })
             }
         })
@@ -348,8 +348,8 @@ module.exports = (app) => {
             if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
                 return res.redirect('https://' + req.get('host') + req.url);
             }
-            DM.addDevice({
-                device_name: req.body['device_name'],
+            TM.addThings({
+                things_name: req.body['things_name'],
                 role: req.body['role'],
                 description: req.body['description'],
                 user: req.session.user.username
@@ -357,7 +357,7 @@ module.exports = (app) => {
                 if (err) {
                     res.status(400).send(err);
                 } else {
-                    logger.http('User %s has register the device', req.session.user.username)
+                    logger.http('User %s has register the things', req.session.user.username)
                     res.status(200).send('ok');
                 }
             })
@@ -372,11 +372,11 @@ module.exports = (app) => {
             res.redirect('/');
         } else {
             if (req.query.id) {
-                DM.deleteDevice(req.query.id, null, (err, obj) => {
+                TM.deleteThings(req.query.id, null, (err, obj) => {
                     if (err != null) {
                         res.status(400).send('record not found');
                     } else {
-                        logger.http('User %s has deleted the device', req.session.user.username)
+                        logger.http('User %s has deleted the thing', req.session.user.username)
                         res.status(200).send('ok');
                     }
                 })
@@ -394,11 +394,11 @@ module.exports = (app) => {
                         if (err != null) {
                             res.status(400).send('record not found');
                         } else {
-                            DM.deleteDevice(null, req.session.user.username, (err, obj) => {
+                            TM.deleteThings(null, req.session.user.username, (err, obj) => {
                                 if (err != null) {
                                     res.status(400).send('record not found');
                                 } else {
-                                    logger.http('User %s has deleted the account and devices', req.session.user.username)
+                                    logger.http('User %s has deleted the account and Things', req.session.user.username)
                                     res.clearCookie('login');
                                     req.session.destroy(function (e) { res.status(200).send('ok'); });
                                 }
@@ -415,10 +415,10 @@ module.exports = (app) => {
         if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
             return res.redirect('https://' + req.get('host') + req.url);
         }
-        if (req.session.user.admin == 1) {
+        if (req.session.user && req.session.user.admin == 1) {
             AM.getAllRecords(function (e, accounts) {
-                DM.getAllDevice(function (e, devices) {
-                    res.render('print', { title: 'Account List', accts: accounts, dvc: devices });
+                TM.getAllThings(function (e, things) {
+                    res.render('print', { title: 'Account List', accts: accounts, thing: things });
                 })
             })
         } else {

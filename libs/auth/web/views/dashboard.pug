@@ -1,33 +1,15 @@
 extends layout
 
 block content
-    // preset form values if we receive a userdata object //
     - user = typeof(usr) != 'undefined' ? usr : { }
-    - device = typeof(dvc) != 'undefined' ? dvc : { }
-    - len = device.length
-    // store the userId on the client side in a hidden input field //
-    input(type='hidden', value= user._id)#userId
+    - things = typeof(things) != 'undefined' ? things : { }
+    input(type='hidden', value= user.admin)#useradmin
 
-    nav.navbar.sticky-top.navbar-expand-lg.navbar-light.bg-light.shadow-sm
-        .container
-            a.navbar-brand(href='/dashboard') Dashboard
-            button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarNavAltMarkup')
-                span.navbar-toggler-icon
-            .collapse.navbar-collapse.justify-content-end#navbarNavAltMarkup
-                .navbar-nav
-                    if user.admin == 1
-                        button.btn.navbar-btn.btn-outline-primary#btn-print Print
-                        button.btn.navbar-btn.btn-outline-info#btn-sysutils Status
-                        button.btn.navbar-btn.btn-outline-danger#btn-logout Sign Out
-                    else
-                        button.btn.navbar-btn.btn-outline-success#btn-add-device Add Device
-                        button.btn.navbar-btn.btn-outline-primary#btn-device Devices
-                        button.btn.navbar-btn.btn-outline-info#btn-account Account
-                        button.btn.navbar-btn.btn-outline-danger#btn-logout Sign Out
+    include navbar
 
     .jumbotron.jumbotron-fluid.bg-light
         .container
-            h1.display-4.text-capitalize#welcome-user Welcome
+            h1.display-4.text-capitalize#welcome-user
             p.lead This is your home page
             hr
 
@@ -54,40 +36,34 @@ block content
                         label.col-sm-3.col-form-label.col-form-label-sm Username
                         .col-sm-9
                             input.form-control#usrname-tf(readonly, type='text', name='user', value= user.username)
-
-                    //- .form-buttons
-                    //-     button(type='button')#account-form-btn1.btn.btn-outline-dark
-                    //-     button(type='submit')#account-form-btn2.btn.btn-primary
-                    //- br
                     hr
                     if user.admin == 0
                         .form-group.row
-                            label.col-sm-3.col-form-label.col-form-label-sm Devices
+                            label.col-sm-3.col-form-label.col-form-label-sm Things
                             .col-sm-9
-                                input.form-control(readonly, type='text', name='device', value= len)
+                                input.form-control(readonly, type='text', name='things', value= things.length)
 
                         .form-group.row
                             label.col-sm-3.col-form-label.col-form-label-sm Active Topics
                             .col-sm-9
-                                each dvct in device
-                                    if dvct.topic != null
-                                        input.form-control(readonly, value= dvct.topic)
+                                each thing in things
+                                    if thing.topic != null
+                                        input.form-control(readonly, value= thing.topic)
                                 else
                                     input.form-control(readonly, value= 0)
 
     if user.admin == 1
         br
-
     else
         br
         .container
             br
             form.card.card-body.bg-light.shadow
                 h3#page-header
-                    a.text-decoration-none#page-header(style='color:black;', data-toggle='collapse', href="#collapseDevice", role='button') List Your Devices 
-                        span.badge.badge-secondary.dropdown-toggle #{len}
+                    a.text-decoration-none#page-header(style='color:black;', data-toggle='collapse', href="#collapseThings", role='button') List Your Things 
+                        span.badge.badge-secondary.dropdown-toggle= things.length
                 hr
-                .collapse#collapseDevice
+                .collapse#collapseThings
                     .card-columns
         br
 
@@ -96,14 +72,7 @@ block content
     include modals/form-errors
 
     include footer
-    script.
-        function copyText(target) {
-            var copyText = document.getElementById(target);
-            copyText.select();
-            document.execCommand("copy");
-        }
 
 block scripts
     script(src='/js/views/dashboard.js')
-    script(src='/js/controllers/dashboardController.js')
     script(src='/js/form-validators/accountValidator.js')

@@ -1,9 +1,8 @@
 extends layout
 
 block content
-    nav.navbar.sticky-top.navbar-expand-lg.navbar-light.bg-light
-        .container
-            a.navbar-brand(href='/dashboard') Dashboard
+
+    include navbar
     
     .container#osutils
         br
@@ -38,6 +37,8 @@ block content
                     label.col-sm-3.col-form-label.col-form-label-sm Free Memory
                     .col-sm-9
                         p.form-control(disabled='')#free-memory
+    
+    include modals/alert
     include footer
 
 block scripts

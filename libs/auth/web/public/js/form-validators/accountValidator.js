@@ -2,8 +2,8 @@
 function AccountValidator() {
 	// build array maps of the form inputs & control groups //
 
-	this.formFields = [$('#name-tf'), $('#email-tf'), $('#pass-tf')];
-	this.controlGroups = [$('#name-cg'), $('#email-cg'), $('#pass-cg')];
+	this.formFields = [$('#name-tf'), $('#email-tf'), $('#username-tf'), $('#password-tf')];
+	this.controlGroups = [$('#name-cg'), $('#email-cg'), $('#username-cg'), $('#password-cg')];
 
 	// bind the form-error modal window to this controller to display any errors //
 
@@ -14,18 +14,22 @@ function AccountValidator() {
 		return s.length >= 3;
 	}
 
-	// this.validatePassword = function (s) {
-	// 	// if user is logged in and hasn't changed their password, return ok
-	// 	if ($('#userId').val() && s === '') {
-	// 		return true;
-	// 	} else {
-	// 		return s.length >= 6;
-	// 	}
-	// }
+	this.validatePassword = function (s) {
+		// if user is logged in and hasn't changed their password, return ok
+		if ($('#username-tf').val() && s === '') {
+			return true;
+		} else {
+			return s.length >= 6;
+		}
+	}
 
 	this.validateEmail = function (e) {
 		let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 		return re.test(e);
+	}
+
+	this.validateUsername = function (s) {
+		return s.length >= 4;
 	}
 
 	this.showErrors = function (a) {
@@ -57,10 +61,14 @@ AccountValidator.prototype.validateForm = function () {
 	if (this.validateEmail(this.formFields[1].val()) == false) {
 		this.controlGroups[1].addClass('error'); e.push('Please Enter A Valid Email');
 	}
-	// if (this.validatePassword(this.formFields[2].val()) == false) {
-	// 	this.controlGroups[2].addClass('error');
-	// 	e.push('Password Should Be At Least 6 Characters');
-	// }
+	if (this.validateUsername(this.formFields[2].val()) == false) {
+		this.controlGroups[2].addClass('error');
+		e.push('Username Should Be At Least 4 Characters')
+	}
+	if (this.validatePassword(this.formFields[3].val()) == false) {
+		this.controlGroups[3].addClass('error');
+		e.push('Password Should Be At Least 6 Characters');
+	}
 	if (e.length) this.showErrors(e);
 	return e.length === 0;
 }
