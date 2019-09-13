@@ -71,11 +71,11 @@ $(document).ready(function () {
     $('#btn-things').remove()
     $('#btn-add-things').remove()
     $('#btn-dashboard').remove()
-    $('#btn-account').remove()
     
     $('#btn-print').addClass('active')
 
     // actions button
+    $('#btn-account').click(function () { window.location.href = '/account'; });
     $('#btn-print').click(function () { window.location.href = '/print'; });
     $('#btn-sysutils').click(function () { window.location.href = '/status'; });
     $('#btn-logout').click(function () { 

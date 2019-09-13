@@ -3,7 +3,7 @@ extends layout
 block content
 
     include navbar
-    
+
     .container#osutils
         br
         form.card.card-body.bg-light.shadow
@@ -11,7 +11,7 @@ block content
                 a.text-decoration-none#stats-header(style='color:black;', data-toggle='collapse', href="#collapseOs", role='button') Information System
             h6#countdown
             hr
-            .collapse.show#collapseOs
+            .collapse#collapseOs
                 .form-group.row
                     label.col-sm-3.col-form-label.col-form-label-sm Platform
                     .col-sm-9
@@ -38,8 +38,22 @@ block content
                     .col-sm-9
                         p.form-control(disabled='')#free-memory
     
+    .container#chart
+        br
+        form.card.card-body.bg-light.shadow
+            h3#stats-header
+                a.text-decoration-none#stats-header(style='color:black;', data-toggle='collapse', href="#collapseOs", role='button') Chart
+            hr
+            .row
+                .col-md-6
+                    #chartCpu
+                .col-md-6
+                    #chartMem
+    
     include modals/alert
     include footer
 
 block scripts
+    script(src='https://cdn.jsdelivr.net/npm/apexcharts')
+    //- script(src='/js/chart.js')
     script(src='/js/views/sysutils.js')

@@ -6,17 +6,17 @@ module.exports = (app) => {
     const TM = require('../auth/config/things-manager')
 
     /* 
-    Thing Request
+    Things Request
     */
-    /* thing request token */
-    router.route('/thing/request')
+    /* Things request token */
+    router.route('/things/request')
         .post((req, res) => {
             let ip, payload
             ip = req.ip
             if (ip.substr(0, 7) == "::ffff:") {
                 ip = ip.substr(7)
             }
-            logger.http('Incoming Thing for %s request token from %s ', req.method, ip)
+            logger.http('Incoming Things for %s request token from %s ', req.method, ip)
             payload = req.body
             payload.ip = ip
             payload.timestamp = Date.now().toString()
@@ -43,7 +43,7 @@ module.exports = (app) => {
             if (ip.substr(0, 7) == "::ffff:") {
                 ip = ip.substr(7)
             }
-            logger.http('Incoming Thing for %s request token from %s ', req.method, ip)
+            logger.http('Incoming Things for %s request token from %s ', req.method, ip)
             res.format({
                 'application/json': function () {
                     res.status(405).send({ message: 'Method Not Allowed' })
@@ -51,13 +51,13 @@ module.exports = (app) => {
             })
         })
 
-    router.route('/thing/check')
+    router.route('/things/check')
         .get((req, res) => {
             let ip = req.ip
             if (ip.substr(0, 7) == "::ffff:") {
                 ip = ip.substr(7)
             }
-            logger.http('Incoming Thing for %s check token from %s ', req.method, ip)
+            logger.http('Incoming ThingThing for %s check token from %s ', req.method, ip)
             if (req.body.token) {
                 TM.validity(req.body.token, (err, reply) => {
                     if (err != null) {
@@ -238,7 +238,7 @@ module.exports = (app) => {
                                 if (err) {
                                     res.status(400).send(err);
                                 } else {
-                                    logger.http('User %s has changed the thing data', req.session.user.username)
+                                    logger.http('User %s has changed the things data', req.session.user.username)
                                     res.status(200).send('ok');
                                 }
                             })
@@ -376,7 +376,7 @@ module.exports = (app) => {
                     if (err != null) {
                         res.status(400).send('record not found');
                     } else {
-                        logger.http('User %s has deleted the thing', req.session.user.username)
+                        logger.http('User %s has deleted the things', req.session.user.username)
                         res.status(200).send('ok');
                     }
                 })

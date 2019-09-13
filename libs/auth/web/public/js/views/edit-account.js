@@ -26,12 +26,19 @@ $(document).ready(function () {
     $('#btn-account').addClass('active')
 
     //remove nav
-    $('#btn-print').remove()
-    $('#btn-sysutils').remove()
-    $('#btn-dashboard').remove()
-
-    $('#btn-things').click(function () { window.location.href = '/things'; });
-    $('#btn-add-things').click(function () { window.location.href = '/register'; });
+    if ($('#admin').val() == 1) {
+        $('#btn-add-things').remove()
+        $('#btn-things').remove()
+        $('#btn-dashboard').remove()
+        $('#btn-print').click(function () { window.location.href = '/print'; });
+        $('#btn-sysutils').click(function () { window.location.href = '/status'; });
+    } else {
+        $('#btn-print').remove()
+        $('#btn-sysutils').remove()
+        $('#btn-dashboard').remove()
+        $('#btn-things').click(function () { window.location.href = '/things'; });
+        $('#btn-add-things').click(function () { window.location.href = '/register'; });
+    }
 
     $('#account-form-btn1').html('Delete');
     $('#account-form-btn1').removeClass('btn-outline-dark');
