@@ -25,7 +25,7 @@ module.exports = (app) => {
                     logger.http('Not generate token for %s, %s', ip, err)
                     res.format({
                         'application/json': function () {
-                            res.status(401).send(err);
+                            res.status(401).send({ message: err});
                         }
                     })
                 } else {
@@ -46,7 +46,7 @@ module.exports = (app) => {
             logger.http('Incoming Things for %s request token from %s ', req.method, ip)
             res.format({
                 'application/json': function () {
-                    res.status(405).send({ message: 'Method Not Allowed' })
+                    res.status(405).send({ message: 'Method-not-allowed' })
                 }
             })
         })
@@ -64,7 +64,7 @@ module.exports = (app) => {
                         logger.error('There\'s an error: %s', err)
                         res.format({
                             'application/json': function () {
-                                res.status(401).send(err)
+                                res.status(401).send({ message: err })
                             }
                         })
                     } else {
@@ -86,7 +86,7 @@ module.exports = (app) => {
             } else {
                 res.format({
                     'application/json': function () {
-                        res.status(200).send({ message: 'Token Not Found' })
+                        res.status(200).send({ message: 'Token-not-found' })
                     }
                 })
             }

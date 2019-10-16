@@ -20,7 +20,7 @@ exports.request = function (payload, callback) {
                         }
                     }
                     else {
-                        callback('Already has token', null)
+                        callback('Already-has-token', null)
                     }
                 })
             } else {
@@ -32,7 +32,7 @@ exports.request = function (payload, callback) {
                 })
             }
         } else {
-            callback('Things Not Registered', null)
+            callback('Things-not-Registered', null)
         }
     })
 }
