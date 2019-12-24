@@ -53,6 +53,7 @@ $(document).ready(function () {
 
     // confirm things deletion //
     $('#register-form-btn3').click(function () { $('.modal-confirm').modal('show') });
+    $('#register-form-btn1').click(function () { window.location.href = '/things'; });
     // handle things deletion //
     $('.modal-confirm .submit').click(function () { deleteThings(); });
     

@@ -18,6 +18,16 @@ module.exports = (app) => {
             }
             logger.http('Incoming Things for %s request token from %s ', req.method, ip)
             payload = req.body
+
+            if (!req.body) {
+                logger.http('Not generate token for %s, %s', ip, err)
+                    res.format({
+                        'application/json': function () {
+                            res.status(401).send({ message: "Things-not-Registered" });
+                        }
+                    })
+            }
+
             payload.ip = ip
             payload.timestamp = Date.now().toString()
             TM.request(payload, (err, data) => {
@@ -71,7 +81,7 @@ module.exports = (app) => {
                         if (reply.status) {
                             res.format({
                                 'application/json': function () {
-                                    res.status(200).send({ status: 'Valid' })
+                                    res.status(200).send({ status: 'Valid', message: reply })
                                 }
                             })
                         } else {
@@ -98,9 +108,9 @@ module.exports = (app) => {
     /* Main Path */
     router.route('/')
         .get((req, res) => {
-            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-                return res.redirect('https://' + req.get('host') + req.url);
-            }
+            // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            //     return res.redirect('https://' + req.get('host') + req.url);
+            // }
             let ip = req.ip
             if (ip.substr(0, 7) == "::ffff:") {
                 ip = ip.substr(7)
@@ -121,9 +131,9 @@ module.exports = (app) => {
             }
         })
         .post((req, res) => {
-            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-                return res.redirect('https://' + req.get('host') + req.url);
-            }
+            // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            //     return res.redirect('https://' + req.get('host') + req.url);
+            // }
             let ip = req.ip
             if (ip.substr(0, 7) == "::ffff:") {
                 ip = ip.substr(7)
@@ -146,15 +156,15 @@ module.exports = (app) => {
     /* SignUp path */
     router.route('/signup')
         .get((req, res) => {
-            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-                return res.redirect('https://' + req.get('host') + req.url);
-            }
+            // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            //     return res.redirect('https://' + req.get('host') + req.url);
+            // }
             res.render('signup', { title: 'Signup' });
         })
         .post((req, res) => {
-            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-                return res.redirect('https://' + req.get('host') + req.url);
-            }
+            // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            //     return res.redirect('https://' + req.get('host') + req.url);
+            // }
             AM.addNewAccount({
                 name: req.body['name'],
                 email: req.body['email'],
@@ -174,9 +184,9 @@ module.exports = (app) => {
     /* Dashboard path */
     router.route('/dashboard')
         .get((req, res) => {
-            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-                return res.redirect('https://' + req.get('host') + req.url);
-            }
+            // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            //     return res.redirect('https://' + req.get('host') + req.url);
+            // }
             if (req.session.user == null) {
                 res.redirect('/');
             } else {
@@ -194,9 +204,9 @@ module.exports = (app) => {
     /* Things Path */
     router.route('/things')
         .get((req, res) => {
-            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-                return res.redirect('https://' + req.get('host') + req.url);
-            }
+            // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            //     return res.redirect('https://' + req.get('host') + req.url);
+            // }
             if (req.session.user == null) {
                 res.redirect('/');
             } else {
@@ -219,9 +229,9 @@ module.exports = (app) => {
             }
         })
         .post((req, res) => {
-            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-                return res.redirect('https://' + req.get('host') + req.url);
-            }
+            // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            //     return res.redirect('https://' + req.get('host') + req.url);
+            // }
             if (req.session.user == null) {
                 res.redirect('/');
             } else {
@@ -250,9 +260,9 @@ module.exports = (app) => {
 
     router.route('/account')
         .get((req,res) => {
-            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-                return res.redirect('https://' + req.get('host') + req.url);
-            }
+            // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            //     return res.redirect('https://' + req.get('host') + req.url);
+            // }
             res.status(200)
             res.render('edit-account', {
                 title: 'Account Update',
@@ -260,9 +270,9 @@ module.exports = (app) => {
             })
         })
         .post((req, res) => {
-            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-                return res.redirect('https://' + req.get('host') + req.url);
-            }
+            // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            //     return res.redirect('https://' + req.get('host') + req.url);
+            // }
             if (req.session.user == null) {
                 res.redirect('/');
             } else {
@@ -290,9 +300,9 @@ module.exports = (app) => {
 
     /* Get Things API */
     router.get('/api/things', (req, res) => {
-        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-            return res.redirect('https://' + req.get('host') + req.url);
-        }
+        // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+        //     return res.redirect('https://' + req.get('host') + req.url);
+        // }
         if (req.session.user == null) {
             res.redirect('/');
         } else {
@@ -304,9 +314,9 @@ module.exports = (app) => {
     })
 
     router.get('/api/osutils', (req, res) => {
-        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-            return res.redirect('https://' + req.get('host') + req.url);
-        }
+        // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+        //     return res.redirect('https://' + req.get('host') + req.url);
+        // }
         if (req.session.user == null) {
             res.redirect('/');
         } else {
@@ -332,9 +342,9 @@ module.exports = (app) => {
     /* Register Things path */
     router.route('/register')
         .get((req, res) => {
-            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-                return res.redirect('https://' + req.get('host') + req.url);
-            }
+            // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            //     return res.redirect('https://' + req.get('host') + req.url);
+            // }
             if (req.session.user == null) {
                 res.redirect('/');
             } else {
@@ -345,9 +355,9 @@ module.exports = (app) => {
             }
         })
         .post((req, res) => {
-            if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-                return res.redirect('https://' + req.get('host') + req.url);
-            }
+            // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+            //     return res.redirect('https://' + req.get('host') + req.url);
+            // }
             TM.addThings({
                 things_name: req.body['things_name'],
                 role: req.body['role'],
@@ -365,9 +375,9 @@ module.exports = (app) => {
 
     /* Delete Path */
     router.post('/delete', function (req, res) {
-        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-            return res.redirect('https://' + req.get('host') + req.url);
-        }
+        // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+        //     return res.redirect('https://' + req.get('host') + req.url);
+        // }
         if (req.session.user == null) {
             res.redirect('/');
         } else {
@@ -412,9 +422,9 @@ module.exports = (app) => {
 
     /* Print All User Path*/
     router.get('/print', function (req, res) {
-        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-            return res.redirect('https://' + req.get('host') + req.url);
-        }
+        // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+        //     return res.redirect('https://' + req.get('host') + req.url);
+        // }
         if (req.session.user && req.session.user.admin == 1) {
             AM.getAllRecords(function (e, accounts) {
                 TM.getAllThings(function (e, things) {
@@ -428,9 +438,9 @@ module.exports = (app) => {
 
     /* System Utils */
     router.get('/status', function (req, res) {
-        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-            return res.redirect('https://' + req.get('host') + req.url);
-        }
+        // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+        //     return res.redirect('https://' + req.get('host') + req.url);
+        // }
         if (req.session.user.admin == 1) {
             res.render('sysutils', { title: 'Information System' })
         } else {
@@ -440,18 +450,18 @@ module.exports = (app) => {
 
     /* LogOut Path */
     router.post('/logout', (req, res) => {
-        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-            return res.redirect('https://' + req.get('host') + req.url);
-        }
+        // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+        //     return res.redirect('https://' + req.get('host') + req.url);
+        // }
         logger.http('User %s has logout', req.session.user.username)
         res.clearCookie('login');
         req.session.destroy(function (e) { res.status(200).send('ok'); });
     })
 
     router.post('/approve', (req,res) => {
-        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-            return res.redirect('https://' + req.get('host') + req.url);
-        }
+        // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+        //     return res.redirect('https://' + req.get('host') + req.url);
+        // }
         if (req.session.user == null) {
             res.redirect('/');
         } else {
@@ -466,9 +476,9 @@ module.exports = (app) => {
     })
 
     router.post('/decline', (req,res) => {
-        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-            return res.redirect('https://' + req.get('host') + req.url);
-        }
+        // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+        //     return res.redirect('https://' + req.get('host') + req.url);
+        // }
         if (req.session.user == null) {
             res.redirect('/');
         } else {
@@ -484,9 +494,9 @@ module.exports = (app) => {
 
     /* Error path handler */
     router.get('*', function (req, res) {
-        if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
-            return res.redirect('https://' + req.get('host') + req.url);
-        }
+        // if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+        //     return res.redirect('https://' + req.get('host') + req.url);
+        // }
         res.render('error', { title: 'Page Not Found', message: 'I\'m sorry, the page or resource you are searching for is currently unavailable.' });
     });
 

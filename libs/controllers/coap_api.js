@@ -30,7 +30,7 @@ module.exports = (app) => {
             } else if (parsePayload.token) {
                 token = parsePayload.token
                 delete parsePayload.token
-                payload = Buffer.from(JSON.stringify(data))
+                payload = Buffer.from(JSON.stringify(parsePayload))
             }
 
             topic = (/^\/r\/(.+)$/.exec(req.url)[1]).split("?")[0]

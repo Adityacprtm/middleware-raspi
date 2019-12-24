@@ -14,11 +14,11 @@ redis = require('redis')
 bodyParser = require('body-parser')
 cookieParser = require('cookie-parser')
 app.redis = {}
-fs = require('fs')
-https = require('https').createServer({
-    key: fs.readFileSync('cert/server.key'),
-    cert: fs.readFileSync('cert/server.cert')
-}, express)
+// fs = require('fs')
+// https = require('https').createServer({
+//     key: fs.readFileSync('cert/server.key'),
+//     cert: fs.readFileSync('cert/server.cert')
+// }, express)
 
 module.exports.setupAscoltatore = setupAscoltatore = (opts) => {
     if (opts == null) {
@@ -81,7 +81,7 @@ module.exports.start = start = () => {
 
     // Express
     express.locals.pretty = true;
-    express.set('port', process.env.PORT_HTTPS);
+    express.set('port', process.env.PORT_HTTP);
     express.set('views', __dirname + '/libs/auth/web/views');
     express.set('view engine', 'pug');
     express.use(cookieParser());
@@ -104,9 +104,9 @@ module.exports.start = start = () => {
     })
 
     // HTTPS
-    https.listen(process.env.PORT_HTTPS, function () {
-        logger.https('HTTPS server listening on port %d in %s mode', process.env.PORT_HTTPS, process.env.NODE_ENV)
-    })
+    // https.listen(process.env.PORT_HTTPS, function () {
+    //     logger.https('HTTPS server listening on port %d in %s mode', process.env.PORT_HTTPS, process.env.NODE_ENV)
+    // })
 
     return app
 }
